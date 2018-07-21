@@ -41,8 +41,6 @@ namespace GameEngine
 
             localEngine.printText(EngineClass.debugType.Debug, "'localEngine' Defined!");
 
-            localEngine.CreateObject(this.Width/2 - 10, this.Height/2 - 10, 20, 20,colour: Color.DarkGreen, name: "Player");
-
             localEngine.printText(EngineClass.debugType.Debug, "'player' Defined!");
 
             //localEngine.SetBackgroundColour(255/2, 255/5, 255/2);
@@ -53,12 +51,6 @@ namespace GameEngine
             localEngine.startGame();
 
             localEngine.FPS = 60;
-        }
-
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            Thread stopThread = new Thread(localEngine.stopGame);
-            
         }
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
@@ -77,7 +69,8 @@ namespace GameEngine
     {
         public Game(Form win) : base(win)
         {
-
+            debug = debugType.Error;
+            CreateObject(win.Width/2 - 40, win.Height/2 - 40, 40, 40, colour: Color.DarkGreen, name: "Player");
         }
 
         public override bool GameLogic()
@@ -113,8 +106,8 @@ namespace GameEngine
                         player.x += 5;
                     }
 
-                    printText(EngineClass.debugType.Debug, player.x.ToString());
-                    printText(EngineClass.debugType.Debug, player.y.ToString());
+                    //printText(EngineClass.debugType.Debug, player.x.ToString());
+                    //printText(EngineClass.debugType.Debug, player.y.ToString());
                 }
                 PressedKeys.Clear();
 

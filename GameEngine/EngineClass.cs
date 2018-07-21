@@ -23,6 +23,96 @@ namespace GameEngine
         public int index;
     }
 
+    public abstract class Component
+    {
+        // Constructor
+        private GameObjectV2 parentObject;
+        public Component()
+        {
+
+        }
+
+        public abstract void Render();
+
+    }
+
+    class Box : Component
+    {
+        private int x;
+        private int y;
+        private Color colour;
+        private int width;
+        private int height;
+        private int _x;
+
+        public Box(int x, int y, Color colour, int width, int height)
+        {
+            this.x = x;
+            this.y = y;
+            this.colour = colour;
+            this.width = width;
+            this.height = height;
+        }
+
+
+        // GETTERS AND SETTERS
+        public int X { get => x; set => x = value; }
+        public int Y { get => y; set => y = value; }
+        public Color Colour { get => colour; set => colour = value; }
+        public int Width { get => width; set => width = value; }
+        public int Height { get => height; set => height = value; }
+
+        public override void Render()
+        {
+            SolidBrush brush = new SolidBrush(colour);
+            //BufferedGFX.Graphics.FillRectangle(brush, x, y, width, height);
+        }
+    }
+
+
+    public abstract class GameObjectV2
+    {
+        private int x = 0;
+        private int y = 0;
+        private List<Component> Components = new List<Component>();
+
+        // Constructor
+        public GameObjectV2()
+        {
+
+        }
+
+        public void Render()
+        {
+            // Render all components
+            for (int i = 0; i < Components.Count; i++)
+            {
+                Components[i].Render();
+            }
+        }
+        public void SetX(int newX)
+        {
+            x = newX;
+        }
+        public void SetY(int newY)
+        {
+            y = newY;
+        }
+        public void AddComponent(Component c)
+        {
+            Components.Add(c);
+        }
+    }
+
+    public class Player : GameObjectV2
+    {
+        public Player() : base()
+        {
+            Box b = new Box(0,0, Color.Blue, 10, 10);
+            AddComponent(b);
+        }
+    }
+
     public struct GameObject
     {
         public string name;
@@ -31,6 +121,7 @@ namespace GameEngine
         public Color colour;
         public List<ObjectComponent> Components;
     }
+
 
     public class InvalidObjectException : Exception
     {
@@ -62,6 +153,7 @@ namespace GameEngine
         private Stopwatch Calculate_FPS_StopWatch = new Stopwatch();
         private TimeSpan timeSpanFPS;
         private bool resizing = true;
+        private bool isFirstFrame = true;
 
         public enum debugType
         {
@@ -72,7 +164,7 @@ namespace GameEngine
         };
 
         public float CurrentFPS;
-        public bool debug = true;
+        public debugType debug = debugType.Debug;
         public bool showFps = true;
         public int FPS = 30;
         public bool lockFPS = false;
@@ -80,15 +172,11 @@ namespace GameEngine
         public Color DefaultColour = Color.FromArgb(200, 0, 255);
 
 
-
-
-
-
         public EngineClass(Form win)
         {
             window = win;
             GameWindowWidth = window.Width;
-            NewGameWindowHeight = window.Height;
+            GameWindowHeight = window.Height;
         }
 
         public void printText(debugType USERdebugType, string str)
@@ -129,7 +217,7 @@ namespace GameEngine
         }
         public void resizeGameCanvas(int Width, int Height)
         {
-            if (debug) { printText(debugType.Debug, "resizing game canvas to " + Width + "x" + Height); }
+            if (debug == debugType.Debug) { printText(debugType.Debug, "resizing game canvas to " + Width + "x" + Height); }
             NewGameWindowWidth = Width;
             NewGameWindowHeight = Height;
 
@@ -138,15 +226,22 @@ namespace GameEngine
 
         public void render()
         {
+            if (isFirstFrame)
+            {
+                resizeGameCanvas(GameWindowWidth, GameWindowHeight);
+                isFirstFrame = false;
+            }
+
+
             if (BufferedGFX == null || resizing)
             {
-                if (debug) { printText(EngineClass.debugType.Warning, "'BufferedGFX' is NULL!"); ; }
+                if (debug == debugType.Warning) { printText(EngineClass.debugType.Warning, "'BufferedGFX' is NULL!"); ; }
                 context = BufferedGraphicsManager.Current;
                 context.MaximumBuffer = new Size(NewGameWindowWidth, NewGameWindowHeight);
 
                 BufferedGFX = context.Allocate(window.CreateGraphics(),
                      new Rectangle(0, 0, NewGameWindowWidth, NewGameWindowHeight)); // CREATE BUFFER
-                if (debug) { printText(EngineClass.debugType.Warning, "'BufferedGFX' = " + BufferedGFX.ToString());}
+                if (debug == debugType.Debug) { printText(EngineClass.debugType.Warning, "'BufferedGFX' = " + BufferedGFX.ToString());}
                 BufferedGFX.Graphics.ScaleTransform((float)NewGameWindowWidth/GameWindowWidth, (float)NewGameWindowHeight/GameWindowHeight);
                 resizing = false;
             }
@@ -163,11 +258,11 @@ namespace GameEngine
                 }
             }
 
-            if (debug) { printText(debugType.Debug, "setting canvas colour to " + backgroundColour.Name); }
+            if (debug == debugType.Debug) { printText(debugType.Debug, "setting canvas colour to " + backgroundColour.Name); }
             BufferedGFX.Graphics.Clear(backgroundColour);
             // START RENDER CODE
 
-            if (debug) { printText(debugType.Debug, "Drawing objects to internal buffer"); }
+            if (debug == debugType.Debug) { printText(debugType.Debug, "Drawing objects to internal buffer"); }
             if (GameObjects.Count > 0)
             {
                 foreach (GameObject gameObj in GameObjects)
@@ -180,7 +275,7 @@ namespace GameEngine
             }
 
             // END RENDER CODE
-            if (debug) { printText(debugType.Debug, "rendering buffer to game window"); }
+            if (debug == debugType.Debug) { printText(debugType.Debug, "rendering buffer to game window"); }
             BufferedGFX.Render();
         }
         
@@ -458,9 +553,7 @@ namespace GameEngine
                     MessageBox.Show(error.Message + "\n\n Stacktrace: \n\n" + error.StackTrace, "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
-            else
-            {
-            }
+            //Thread.CurrentThread.Join();
         }
     }
 }
