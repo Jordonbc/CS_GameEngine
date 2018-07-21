@@ -17,12 +17,27 @@ namespace GameEngine
     {
         public int x, y;
     }
+    public struct ObjectComponent
+    {
+        public string name;
+        public int index;
+    }
 
     public struct GameObject
     {
+        public string name;
         public int index;
         public float x, y, SizeX, SizeY;
         public Color colour;
+        public List<ObjectComponent> Components;
+    }
+
+    public class InvalidObjectException : Exception
+    {
+        public InvalidObjectException(string message)
+           : base(message)
+        {
+        }
     }
 
 
@@ -38,9 +53,15 @@ namespace GameEngine
         private List<GameObject> GameObjects = new List<GameObject>();
         private Color backgroundColour = Color.Black;
         private bool HasError = false;
+        private int GameWindowWidth = 640;
+        private int GameWindowHeight = 360;
+
+        private int NewGameWindowWidth = 640;
+        private int NewGameWindowHeight = 360;
 
         private Stopwatch Calculate_FPS_StopWatch = new Stopwatch();
         private TimeSpan timeSpanFPS;
+        private bool resizing = true;
 
         public enum debugType
         {
@@ -51,20 +72,23 @@ namespace GameEngine
         };
 
         public float CurrentFPS;
-        public bool debug = false;
+        public bool debug = true;
         public bool showFps = true;
         public int FPS = 30;
         public bool lockFPS = false;
+        public List<Keys> PressedKeys = new List<Keys>();
+        public Color DefaultColour = Color.FromArgb(200, 0, 255);
 
-        private int GameWindowWidth = 640;
-        private int GameWindowHeight = 360;
+
+
+
 
 
         public EngineClass(Form win)
         {
             window = win;
             GameWindowWidth = window.Width;
-            GameWindowHeight = window.Height;
+            NewGameWindowHeight = window.Height;
         }
 
         public void printText(debugType USERdebugType, string str)
@@ -106,32 +130,27 @@ namespace GameEngine
         public void resizeGameCanvas(int Width, int Height)
         {
             if (debug) { printText(debugType.Debug, "resizing game canvas to " + Width + "x" + Height); }
-            GameWindowWidth = Width;
-            GameWindowHeight = Height;
+            NewGameWindowWidth = Width;
+            NewGameWindowHeight = Height;
 
-            context = BufferedGraphicsManager.Current;
-            context.MaximumBuffer = new Size(GameWindowWidth, GameWindowHeight);
-
-            BufferedGFX = context.Allocate(window.CreateGraphics(),
-                     new Rectangle(0, 0, GameWindowWidth, GameWindowHeight)); // CREATE BUFFER
-
-            //if (debug) { printText(debugType.Debug, "scaling canvas to " + window.Width + "x" + window.Height); }
-            //g.Graphics.ScaleTransform(window.Width, window.Height);
+            resizing = true;
         }
 
         public void render()
         {
-            if (BufferedGFX == null)
+            if (BufferedGFX == null || resizing)
             {
                 if (debug) { printText(EngineClass.debugType.Warning, "'BufferedGFX' is NULL!"); ; }
                 context = BufferedGraphicsManager.Current;
-                context.MaximumBuffer = new Size(GameWindowWidth, GameWindowHeight);
+                context.MaximumBuffer = new Size(NewGameWindowWidth, NewGameWindowHeight);
 
                 BufferedGFX = context.Allocate(window.CreateGraphics(),
-                     new Rectangle(0, 0, GameWindowWidth, GameWindowHeight)); // CREATE BUFFER
-                if (debug) { printText(EngineClass.debugType.Warning, "'BufferedGFX' = " + BufferedGFX.ToString()); ; }
+                     new Rectangle(0, 0, NewGameWindowWidth, NewGameWindowHeight)); // CREATE BUFFER
+                if (debug) { printText(EngineClass.debugType.Warning, "'BufferedGFX' = " + BufferedGFX.ToString());}
+                BufferedGFX.Graphics.ScaleTransform((float)NewGameWindowWidth/GameWindowWidth, (float)NewGameWindowHeight/GameWindowHeight);
+                resizing = false;
             }
-
+            
             if (lockFPS)
             {
                 if (CurrentFPS > 30 && CurrentFPS < 60)
@@ -164,55 +183,199 @@ namespace GameEngine
             if (debug) { printText(debugType.Debug, "rendering buffer to game window"); }
             BufferedGFX.Render();
         }
+        
+        public int GetCanvasWidth()
+        {
+            return GameWindowWidth;
+        }
 
-        public Color getBackgroundColour()
+        public int GetCanvasHeight()
+        {
+            return NewGameWindowHeight;
+        }
+
+        public void SetObjectColourByID(int ID, int R, int G, int B, int A)
+        {
+            if (ID < GameObjects.Count)
+            {
+                GameObject Go = GameObjects[ID];
+                Color Colour = Color.FromArgb(A, R, G, B);
+                SetObjectByID(ID, Go);
+            }
+            else
+            {
+                throw new InvalidObjectException("Cannot Find Specified Game Object '"+ ID.ToString() +"'");
+            }
+
+        }
+
+        public GameObject SetObjectColour(GameObject Object, int R, int G, int B, int A)
+        {
+            GameObject Obj = Object;
+            Color Colour = Color.FromArgb(A, R, G, B);
+            Obj.colour = Colour;
+
+            return Obj;
+        }
+
+        public void SetObjectColourByName(string Name, int R, int G, int B, int A)
+        {
+            SetObjectColourByID(GetObjectIDByName(Name), R, G, B, A);
+            printText(debugType.Debug, "Setting Object Colour");
+        }
+
+        public void SetBackgroundColour(int R, int G, int B)
+        {
+            Color Colour = Color.FromArgb(R, G, B);
+            backgroundColour = Colour;
+        }
+
+        public void SetBackgroundColour(int R, int G, int B, int A)
+        {
+            Color Colour = Color.FromArgb(A, R, G, B);
+            backgroundColour = Colour;
+        }
+
+        public void SetBackgroundColour(Color Colour)
+        {
+            backgroundColour = Colour;
+        }
+
+        public Color GetBackgroundColour()
         {
             return backgroundColour;
         }
-        public void setBackgroundColour(Color colour)
-        {
-            backgroundColour = colour;
-        }
 
-        public GameObject GetGraphics(int index)
+        public GameObject GetObject(int index)
         {
             GameObject GameObj = GameObjects[index];
             return GameObj;
         }
 
+        public GameObject GetObjectByName(String Name)
+        {
+            return GameObjects[GetObjectIDByName(Name)];
+        }
+        public GameObject GetObjectByID(int ID)
+        {
+            if (ID < GameObjects.Count)
+            {
+                return GameObjects[ID];
+            }
+            else
+            {
+                printText(debugType.Error, "Cannot find specified object '" + ID.ToString() + "'");
+                return GameObjects[0];
+            }
+        }
+        public int GetObjectIDByName(string Name)
+        {
+            bool found = false;
+            int GameObjID = 0;
+            for (int i = 0; i < GameObjects.Count; i++)
+            {
+                if (GameObjects[i].name == Name)
+                {
+                    found = true;
+                    GameObjID = i;
+                    break;
+                }
+            }
+            if (found)
+            {
+                return GameObjID;
+            }
+            else
+            {
+                throw new InvalidObjectException("Cannot Find Specified Game Object '" + Name + "'");
+            }
+        }
 
         public void SetObject(int index, GameObject gameObj)
         {
             GameObjects[index] = gameObj;
         }
 
-        public void SetGraphics(int index, int x, int y, int sizeX, int sizeY, Color colour)
+        public void SetObjectByName(string Name, GameObject gameObj)
         {
-            GameObject GameObj;
-            GameObj.index = index;
-            GameObj.x = x;
-            GameObj.y = y;
-            GameObj.SizeX = sizeX;
-            GameObj.SizeY = sizeY;
-            GameObj.colour = colour;
-
-            GameObjects[index] = GameObj;
+            for (int i = 0; i < GameObjects.Count; i++)
+            {
+                if (GameObjects[i].name == Name)
+                {
+                    GameObjects[i] = gameObj;
+                    break;
+                }
+            }
+            //GameObjects[index] = gameObj;
         }
 
-        public GameObject AddGraphics(int x, int y, int sizeX, int sizeY, Color colour)
+        public void AddComponentToObjectByID(ObjectComponent component, int ID)
+        {
+            GameObjects[ID].Components.Add(component);
+        }
+
+        public void AddComponentToObjectByName(ObjectComponent component, string Name)
+        {
+            
+            GameObjects[GetObjectIDByName(Name)].Components.Add(component);
+        }
+
+        public void SetObjectByID(int ID, GameObject Object)
+        {
+            GameObject GameObj;
+            GameObj.name = Object.name;
+            GameObj.index = Object.index;
+            GameObj.x = Object.x;
+            GameObj.y = Object.y;
+            GameObj.SizeX = Object.SizeX;
+            GameObj.SizeY = Object.SizeY;
+            GameObj.colour = Object.colour;
+            GameObj.Components = Object.Components;
+
+            GameObjects[ID] = GameObj;
+        }
+        public GameObject CreateObject(GameObject Object)
         {
 
             GameObject GameObj;
+            GameObj.name = Object.name;
+            GameObj.index = GameObjects.Count;
+            GameObj.x = Object.x;
+            GameObj.y = Object.y;
+            GameObj.SizeX = Object.SizeX;
+            GameObj.SizeY = Object.SizeY;
+            GameObj.colour = Object.colour;
+            GameObj.Components = new List<ObjectComponent>();
+
+            GameObjects.Add(GameObj);
+
+            return GameObj;
+        }
+
+        public GameObject CreateObject(int x, int y, int sizeX, int sizeY, Color? colour = null, string name = "Default Object Name")
+        {
+            if(colour == null)
+            {
+                colour = DefaultColour;
+            }
+            GameObject GameObj;
+            GameObj.name = name;
             GameObj.index = GameObjects.Count;
             GameObj.x = x;
             GameObj.y = y;
             GameObj.SizeX = sizeX;
             GameObj.SizeY = sizeY;
-            GameObj.colour = colour;
+            GameObj.colour = (Color)colour;
+            GameObj.Components = new List<ObjectComponent>();
 
             GameObjects.Add(GameObj);
 
             return GameObj;
+        }
+
+        public virtual Boolean GameLogic()
+        {
+            return true;
         }
 
         private void GameLoop()
@@ -223,7 +386,12 @@ namespace GameEngine
                 Calculate_FPS_StopWatch.Start();
                 try
                 {
-                    render();
+                    // Only update the frame if it has successfully executed game logic
+                    if (GameLogic())
+                    {
+                        render();
+                    }
+
                     if (1000 / FPS >= 0)
                     { Thread.Sleep(1000 / FPS); }
                 }

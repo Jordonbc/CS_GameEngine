@@ -16,9 +16,9 @@ namespace GameEngine
     public partial class Form1 : Form
     {
 
-        EngineClass localEngine;
-        GameObject player;
-        int playerSpeed = 5;
+        Game localEngine;
+        //GameObject player;
+        //int playerSpeed = 5;
 
         List<GameObject> PlayerSegments = new List<GameObject>();
 
@@ -29,6 +29,7 @@ namespace GameEngine
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            this.Text = "Test_Game.exe";
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.White;
 
@@ -36,15 +37,17 @@ namespace GameEngine
 
             Console.WriteLine("Debug Console Initialized");
 
-            localEngine = new EngineClass(this);
+            localEngine = new Game(this);
 
             localEngine.printText(EngineClass.debugType.Debug, "'localEngine' Defined!");
 
-            player = localEngine.AddGraphics(this.Width/2 - 10, this.Height/2 - 10, 20, 20, Color.Green);
+            localEngine.CreateObject(this.Width/2 - 10, this.Height/2 - 10, 20, 20,colour: Color.DarkGreen, name: "Player");
 
             localEngine.printText(EngineClass.debugType.Debug, "'player' Defined!");
 
-            localEngine.printText(EngineClass.debugType.Debug, "player.Index = " + player.index);
+            //localEngine.SetBackgroundColour(255/2, 255/5, 255/2);
+
+            //localEngine.printText(EngineClass.debugType.Debug, "player.Index = " + player.index);
 
             localEngine.printText(EngineClass.debugType.Debug, "Starting Engine");
             localEngine.startGame();
@@ -60,51 +63,85 @@ namespace GameEngine
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
-            if(e.KeyCode == Keys.Up)
-            {
-                player.y -= playerSpeed;
-                localEngine.SetObject(player.index, player);
-            }
-            else if (e.KeyCode == Keys.Down)
-            {
-                player.y += playerSpeed;
-                localEngine.SetObject(player.index, player);
-            }
-            if (e.KeyCode == Keys.Left)
-            {
-                player.x -= playerSpeed;
-                localEngine.SetObject(player.index, player);
-            }
-            else if (e.KeyCode == Keys.Right)
-            {
-                player.x += playerSpeed;
-                localEngine.SetObject(player.index, player);
-            }
+            localEngine.PressedKeys.Add(e.KeyCode); // Add key to list of pressed keys
 
-            if (e.KeyCode == Keys.T)
-            {
-                localEngine.lockFPS = true;
-                localEngine.FPS = 45;
-            }
         }
 
         private void Form1_Resize(object sender, EventArgs e)
         {
             localEngine.resizeGameCanvas(this.Width, this.Height);
         }
+    }
 
-        private void Form1_KeyPress(object sender, KeyPressEventArgs e)
+    internal class Game : EngineClass
+    {
+        public Game(Form win) : base(win)
         {
 
         }
 
-        private void Form1_KeyUp(object sender, KeyEventArgs e)
+        public override bool GameLogic()
         {
-            //if (e.KeyCode == Keys.T)
-            //{
-            //    localEngine.lockFPS = false;
-            //    localEngine.FPS = 60;
-            //}
+            // This runs every frame and handles game logic
+            GameObject player = GetObjectByName("Player");
+
+            // Handle Key Presses
+
+            if (PressedKeys.Count > 0)
+            {
+                for (int i = 0; i < PressedKeys.Count; i++)
+                {
+                    //Keys currentKeyCode = PressedKeys[i];
+
+                    //printText(EngineClass.debugType.Debug, PressedKeys[i].ToString());
+
+                    if (PressedKeys[i] == Keys.W)
+                    {
+                        player.y -= 5;
+                    }
+                    else if (PressedKeys[i] == Keys.S)
+                    {
+                        player.y += 5;
+                    }
+
+                    if (PressedKeys[i] == Keys.A)
+                    {
+                        player.x -= 5;
+                    }
+                    else if (PressedKeys[i] == Keys.D)
+                    {
+                        player.x += 5;
+                    }
+
+                    printText(EngineClass.debugType.Debug, player.x.ToString());
+                    printText(EngineClass.debugType.Debug, player.y.ToString());
+                }
+                PressedKeys.Clear();
+
+                // Handle Collision
+                if (player.x + player.SizeX > GetCanvasWidth())
+                {
+                    player.x = GetCanvasWidth() - player.SizeX;
+                }
+
+                else if (player.x < 0)
+                {
+                    player.x = 0;
+                }
+
+                if (player.y + player.SizeY > GetCanvasHeight())
+                {
+                    player.y = GetCanvasHeight() - player.SizeY;
+                }
+
+                else if (player.y < 0)
+                {
+                    player.y = 0;
+                }
+
+                SetObjectByName("Player", player); // Commit changes back to the engine
+            }
+            return true; // we return true to notify the engine that we have finnished game logic pass successfully
         }
     }
 }
