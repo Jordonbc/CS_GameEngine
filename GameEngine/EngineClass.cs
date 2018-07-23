@@ -12,117 +12,6 @@ using System.Diagnostics;
 
 namespace GameEngine
 {
-
-    public struct Vector2D
-    {
-        public int x, y;
-    }
-    public struct ObjectComponent
-    {
-        public string name;
-        public int index;
-    }
-
-    public abstract class Component
-    {
-        // Constructor
-        private GameObjectV2 parentObject;
-        public Component()
-        {
-
-        }
-
-        public abstract void Render();
-
-    }
-
-    class Box : Component
-    {
-        private int x;
-        private int y;
-        private Color colour;
-        private int width;
-        private int height;
-        private int _x;
-
-        public Box(int x, int y, Color colour, int width, int height)
-        {
-            this.x = x;
-            this.y = y;
-            this.colour = colour;
-            this.width = width;
-            this.height = height;
-        }
-
-
-        // GETTERS AND SETTERS
-        public int X { get => x; set => x = value; }
-        public int Y { get => y; set => y = value; }
-        public Color Colour { get => colour; set => colour = value; }
-        public int Width { get => width; set => width = value; }
-        public int Height { get => height; set => height = value; }
-
-        public override void Render()
-        {
-            SolidBrush brush = new SolidBrush(colour);
-            //BufferedGFX.Graphics.FillRectangle(brush, x, y, width, height);
-        }
-    }
-
-
-    public abstract class GameObjectV2
-    {
-        private int x = 0;
-        private int y = 0;
-        private List<Component> Components = new List<Component>();
-
-        // Constructor
-        public GameObjectV2()
-        {
-
-        }
-
-        public void Render()
-        {
-            // Render all components
-            for (int i = 0; i < Components.Count; i++)
-            {
-                Components[i].Render();
-            }
-        }
-        public void SetX(int newX)
-        {
-            x = newX;
-        }
-        public void SetY(int newY)
-        {
-            y = newY;
-        }
-        public void AddComponent(Component c)
-        {
-            Components.Add(c);
-        }
-    }
-
-    public class Player : GameObjectV2
-    {
-        public Player() : base()
-        {
-            Box b = new Box(0,0, Color.Blue, 10, 10);
-            AddComponent(b);
-        }
-    }
-
-    public struct GameObject
-    {
-        public string name;
-        public int index;
-        public float x, y, SizeX, SizeY;
-        public Color colour;
-        public List<ObjectComponent> Components;
-    }
-
-
     public class InvalidObjectException : Exception
     {
         public InvalidObjectException(string message)
@@ -135,7 +24,7 @@ namespace GameEngine
     class EngineClass
     {
 
-        private BufferedGraphics BufferedGFX;
+        public BufferedGraphics BufferedGFX;
         private BufferedGraphicsContext context;
         private Form window;
         private bool running;
@@ -224,6 +113,12 @@ namespace GameEngine
             resizing = true;
         }
 
+        public void DrawBox(int x, int y, int width, int height, Color colour)
+        {
+            SolidBrush brush = new SolidBrush(colour);
+            BufferedGFX.Graphics.FillRectangle(brush, x, y, width, height);
+        }
+
         public void render()
         {
             if (isFirstFrame)
@@ -267,9 +162,11 @@ namespace GameEngine
             {
                 foreach (GameObject gameObj in GameObjects)
                 {
-                    SolidBrush brush = new SolidBrush(gameObj.colour);
-
-                    BufferedGFX.Graphics.FillRectangle(brush, gameObj.x, gameObj.y, gameObj.SizeX, gameObj.SizeY);
+                    if (debug == debugType.Debug) { printText(EngineClass.debugType.Warning, "Drawing object: " + gameObj.GetType().Name); }
+                    //SolidBrush brush = new SolidBrush(gameObj.colour);
+                    gameObj.BufferedGFX = BufferedGFX;
+                    gameObj.Render();
+                    //BufferedGFX.Graphics.FillRectangle(brush, gameObj.x, gameObj.y, gameObj.SizeX, gameObj.SizeY);
                 }
                 
             }
@@ -289,35 +186,35 @@ namespace GameEngine
             return NewGameWindowHeight;
         }
 
-        public void SetObjectColourByID(int ID, int R, int G, int B, int A)
-        {
-            if (ID < GameObjects.Count)
-            {
-                GameObject Go = GameObjects[ID];
-                Color Colour = Color.FromArgb(A, R, G, B);
-                SetObjectByID(ID, Go);
-            }
-            else
-            {
-                throw new InvalidObjectException("Cannot Find Specified Game Object '"+ ID.ToString() +"'");
-            }
+        //public void SetObjectColourByID(int ID, int R, int G, int B, int A)
+        //{
+        //    if (ID < GameObjects.Count)
+        //    {
+        //        GameObject Go = GameObjects[ID];
+        //        Color Colour = Color.FromArgb(A, R, G, B);
+        //        SetObjectByID(ID, Go);
+        //    }
+        //    else
+        //    {
+        //        throw new InvalidObjectException("Cannot Find Specified Game Object '"+ ID.ToString() +"'");
+        //    }
 
-        }
+        //}
 
-        public GameObject SetObjectColour(GameObject Object, int R, int G, int B, int A)
-        {
-            GameObject Obj = Object;
-            Color Colour = Color.FromArgb(A, R, G, B);
-            Obj.colour = Colour;
+        //public GameObject SetObjectColour(GameObject Object, int R, int G, int B, int A)
+        //{
+        //    GameObject Obj = Object;
+        //    Color Colour = Color.FromArgb(A, R, G, B);
+        //    Obj.colour = Colour;
 
-            return Obj;
-        }
+        //    return Obj;
+        //}
 
-        public void SetObjectColourByName(string Name, int R, int G, int B, int A)
-        {
-            SetObjectColourByID(GetObjectIDByName(Name), R, G, B, A);
-            printText(debugType.Debug, "Setting Object Colour");
-        }
+        //public void SetObjectColourByName(string Name, int R, int G, int B, int A)
+        //{
+        //    SetObjectColourByID(GetObjectIDByName(Name), R, G, B, A);
+        //    printText(debugType.Debug, "Setting Object Colour");
+        //}
 
         public void SetBackgroundColour(int R, int G, int B)
         {
@@ -351,6 +248,7 @@ namespace GameEngine
         {
             return GameObjects[GetObjectIDByName(Name)];
         }
+
         public GameObject GetObjectByID(int ID)
         {
             if (ID < GameObjects.Count)
@@ -369,8 +267,9 @@ namespace GameEngine
             int GameObjID = 0;
             for (int i = 0; i < GameObjects.Count; i++)
             {
-                if (GameObjects[i].name == Name)
+                if (GameObjects[i].Name == Name)
                 {
+                    if (debug == debugType.Debug) { printText(EngineClass.debugType.Debug, "Object Found!"); }
                     found = true;
                     GameObjID = i;
                     break;
@@ -395,7 +294,7 @@ namespace GameEngine
         {
             for (int i = 0; i < GameObjects.Count; i++)
             {
-                if (GameObjects[i].name == Name)
+                if (GameObjects[i].Name == Name)
                 {
                     GameObjects[i] = gameObj;
                     break;
@@ -404,67 +303,52 @@ namespace GameEngine
             //GameObjects[index] = gameObj;
         }
 
-        public void AddComponentToObjectByID(ObjectComponent component, int ID)
+        //public void AddComponentToObjectByID(ObjectComponent component, int ID)
+        //{
+        //    GameObjects[ID].Components.Add(component);
+        //}
+
+        //public void AddComponentToObjectByName(ObjectComponent component, string Name)
+        //{
+
+        //    GameObjects[GetObjectIDByName(Name)].Components.Add(component);
+        //}
+
+        //public void SetObjectByID(int ID, GameObject Object)
+        //{
+        //    GameObject GameObj;
+        //    GameObj.name = Object.name;
+        //    GameObj.index = Object.index;
+        //    GameObj.x = Object.x;
+        //    GameObj.y = Object.y;
+        //    GameObj.SizeX = Object.SizeX;
+        //    GameObj.SizeY = Object.SizeY;
+        //    GameObj.colour = Object.colour;
+        //    GameObj.Components = Object.Components;
+
+        //    GameObjects[ID] = GameObj;
+        //}
+        //public GameObject CreateObject(GameObject Object)
+        //{
+
+        //    GameObject GameObj;
+        //    GameObj.name = Object.name;
+        //    GameObj.index = GameObjects.Count;
+        //    GameObj.x = Object.x;
+        //    GameObj.y = Object.y;
+        //    GameObj.SizeX = Object.SizeX;
+        //    GameObj.SizeY = Object.SizeY;
+        //    GameObj.colour = Object.colour;
+        //    GameObj.Components = new List<ObjectComponent>();
+
+        //    GameObjects.Add(GameObj);
+
+        //    return GameObj;
+        //}
+
+        public GameObject CreateObject(GameObject GameObj)
         {
-            GameObjects[ID].Components.Add(component);
-        }
-
-        public void AddComponentToObjectByName(ObjectComponent component, string Name)
-        {
-            
-            GameObjects[GetObjectIDByName(Name)].Components.Add(component);
-        }
-
-        public void SetObjectByID(int ID, GameObject Object)
-        {
-            GameObject GameObj;
-            GameObj.name = Object.name;
-            GameObj.index = Object.index;
-            GameObj.x = Object.x;
-            GameObj.y = Object.y;
-            GameObj.SizeX = Object.SizeX;
-            GameObj.SizeY = Object.SizeY;
-            GameObj.colour = Object.colour;
-            GameObj.Components = Object.Components;
-
-            GameObjects[ID] = GameObj;
-        }
-        public GameObject CreateObject(GameObject Object)
-        {
-
-            GameObject GameObj;
-            GameObj.name = Object.name;
-            GameObj.index = GameObjects.Count;
-            GameObj.x = Object.x;
-            GameObj.y = Object.y;
-            GameObj.SizeX = Object.SizeX;
-            GameObj.SizeY = Object.SizeY;
-            GameObj.colour = Object.colour;
-            GameObj.Components = new List<ObjectComponent>();
-
             GameObjects.Add(GameObj);
-
-            return GameObj;
-        }
-
-        public GameObject CreateObject(int x, int y, int sizeX, int sizeY, Color? colour = null, string name = "Default Object Name")
-        {
-            if(colour == null)
-            {
-                colour = DefaultColour;
-            }
-            GameObject GameObj;
-            GameObj.name = name;
-            GameObj.index = GameObjects.Count;
-            GameObj.x = x;
-            GameObj.y = y;
-            GameObj.SizeX = sizeX;
-            GameObj.SizeY = sizeY;
-            GameObj.colour = (Color)colour;
-            GameObj.Components = new List<ObjectComponent>();
-
-            GameObjects.Add(GameObj);
-
             return GameObj;
         }
 

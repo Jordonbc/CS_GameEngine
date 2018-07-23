@@ -18,9 +18,7 @@ namespace GameEngine
 
         Game localEngine;
         //GameObject player;
-        //int playerSpeed = 5;
-
-        List<GameObject> PlayerSegments = new List<GameObject>();
+        GameObject Player = new GameObject("Player");
 
         public Form1()
         {
@@ -38,6 +36,7 @@ namespace GameEngine
             Console.WriteLine("Debug Console Initialized");
 
             localEngine = new Game(this);
+            //localEngine.debug = EngineClass.debugType.Debug;
 
             localEngine.printText(EngineClass.debugType.Debug, "'localEngine' Defined!");
 
@@ -46,6 +45,17 @@ namespace GameEngine
             //localEngine.SetBackgroundColour(255/2, 255/5, 255/2);
 
             //localEngine.printText(EngineClass.debugType.Debug, "player.Index = " + player.index);
+
+            //localEngine.CreateObject(GameObj: new Player());
+
+            //                       engine reference      obj ref
+            BoxComponent c = new BoxComponent(localEngine, Player, 20 , 0, Color.Red, 50, 50);
+            Player.AddComponent(c);
+
+            BoxComponent b = new BoxComponent(localEngine, Player, 0, 0, Color.Blue, 20, 20);
+            Player.AddComponent(b);
+
+            localEngine.CreateObject(Player);
 
             localEngine.printText(EngineClass.debugType.Debug, "Starting Engine");
             localEngine.startGame();
@@ -65,19 +75,29 @@ namespace GameEngine
         }
     }
 
+    //public class Player : GameObject
+    //{
+    //    public Player() : base()
+    //    {
+    //        Box b = new Box(0, 0, Color.Blue, 10, 10);
+    //        AddComponent(b);
+    //    }
+    //}
+
     internal class Game : EngineClass
     {
+        int playerSpeed = 10;
+
         public Game(Form win) : base(win)
         {
             debug = debugType.Error;
-            CreateObject(win.Width/2 - 40, win.Height/2 - 40, 40, 40, colour: Color.DarkGreen, name: "Player");
+            //CreateObject(win.Width/2 - 40, win.Height/2 - 40, 40, 40, colour: Color.DarkGreen, name: "Player");
         }
 
         public override bool GameLogic()
         {
             // This runs every frame and handles game logic
             GameObject player = GetObjectByName("Player");
-
             // Handle Key Presses
 
             if (PressedKeys.Count > 0)
@@ -90,31 +110,31 @@ namespace GameEngine
 
                     if (PressedKeys[i] == Keys.W)
                     {
-                        player.y -= 5;
+                        player.y -= playerSpeed;
                     }
                     else if (PressedKeys[i] == Keys.S)
                     {
-                        player.y += 5;
+                        player.y += playerSpeed;
                     }
 
                     if (PressedKeys[i] == Keys.A)
                     {
-                        player.x -= 5;
+                        player.x -= playerSpeed;
                     }
                     else if (PressedKeys[i] == Keys.D)
                     {
-                        player.x += 5;
+                        player.x += playerSpeed;
                     }
 
-                    //printText(EngineClass.debugType.Debug, player.x.ToString());
-                    //printText(EngineClass.debugType.Debug, player.y.ToString());
+                    printText(EngineClass.debugType.Debug, player.x.ToString());
+                    printText(EngineClass.debugType.Debug, player.y.ToString());
                 }
                 PressedKeys.Clear();
 
                 // Handle Collision
-                if (player.x + player.SizeX > GetCanvasWidth())
+                if (player.x + player.width > GetCanvasWidth())
                 {
-                    player.x = GetCanvasWidth() - player.SizeX;
+                    player.x = GetCanvasWidth() - player.width;
                 }
 
                 else if (player.x < 0)
@@ -122,9 +142,9 @@ namespace GameEngine
                     player.x = 0;
                 }
 
-                if (player.y + player.SizeY > GetCanvasHeight())
+                if (player.y + player.height > GetCanvasHeight())
                 {
-                    player.y = GetCanvasHeight() - player.SizeY;
+                    player.y = GetCanvasHeight() - player.height;
                 }
 
                 else if (player.y < 0)
@@ -132,7 +152,7 @@ namespace GameEngine
                     player.y = 0;
                 }
 
-                SetObjectByName("Player", player); // Commit changes back to the engine
+                //SetObjectByName("Player", player); // Commit changes back to the engine
             }
             return true; // we return true to notify the engine that we have finnished game logic pass successfully
         }
