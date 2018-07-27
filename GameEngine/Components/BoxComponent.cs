@@ -2,7 +2,7 @@
 
 namespace GameEngine
 {
-    class BoxComponent : BaseComponent
+    public class BoxComponent : BaseComponent
     {
         private int x;
         private int y;

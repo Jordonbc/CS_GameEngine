@@ -57,6 +57,7 @@ namespace GameEngine
             BaseComponent selectedComp = null;
             for (int i = 0; i < Components.Count; i++)
             {
+                //Console.WriteLine("Component: " + Components[i].GetType().Name);
                 if (Components[i].GetType().Name == name)
                 {
                     selectedComp = Components[i];

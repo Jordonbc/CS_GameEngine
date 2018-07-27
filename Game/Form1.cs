@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using GameEngine;
 
 
 namespace GameEngine
@@ -19,6 +20,9 @@ namespace GameEngine
         Game localEngine;
         //GameObject player;
         GameObject Player = new GameObject("Player");
+
+        GameObject GameRenderTextObj = new GameObject("GameRenderTextObj");
+        GameObject WindowSizeTextObj = new GameObject("WindowSizeTextObj");
 
         public Form1()
         {
@@ -34,16 +38,26 @@ namespace GameEngine
             Console.Clear();
 
             Console.WriteLine("Debug Console Initialized");
-            
 
             localEngine = new Game(this);
-            //localEngine.debug = EngineClass.debugType.Debug;
+            localEngine.GameResolutionWidth = 1920;
+            localEngine.GameResolutionHeight = 1080;
 
-            
+            localEngine.AddFPSCounter();
 
-            localEngine.printText(EngineClass.debugType.Debug, "'localEngine' Defined!");
+            TextComponent tc = new TextComponent(localEngine, GameRenderTextObj, 1, 20, Color.White, "Resolution Width", new FontFamily("Arial"), 12);
+            GameRenderTextObj.AddComponent(tc);
 
-            localEngine.printText(EngineClass.debugType.Debug, "'player' Defined!");
+            TextComponent tc2 = new TextComponent(localEngine, WindowSizeTextObj, 1, 50, Color.White, "Resolution Width", new FontFamily("Arial"), 12);
+            WindowSizeTextObj.AddComponent(tc2);
+
+
+            localEngine.CreateUIObject(GameRenderTextObj);
+            localEngine.CreateUIObject(WindowSizeTextObj);
+
+            localEngine.PrintText(debugType.Debug, "'localEngine' Defined!");
+
+            localEngine.PrintText(debugType.Debug, "'player' Defined!");
 
             localEngine.SetBackgroundColour(255/2, 255/5, 255/2);
 
@@ -51,7 +65,7 @@ namespace GameEngine
 
             //localEngine.CreateObject(GameObj: new Player());
 
-            localEngine.GraphicsSettings.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+            localEngine.GraphicsSettings.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
             localEngine.GraphicsSettings.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
 
             //                       engine reference      obj ref
@@ -64,18 +78,19 @@ namespace GameEngine
             Player.x = this.Width / 2 - Player.width / 2;
             Player.y = this.Height / 2 - Player.height / 2;
 
-            SpriteComponent spr = new SpriteComponent(localEngine, Player, 0, 0, 50, 50, Image.FromFile("Mario.jpg"));
+            SpriteComponent spr = new SpriteComponent(localEngine, Player, 0, 0, 50, 50, Image.FromFile("Mario.png"));
             //spr.resizeImage(50, 50);
-            spr.MakeTransparent();
+            //spr.MakeTransparent();
             Player.AddComponent(spr);
 
             localEngine.CreateObject(Player);
 
-            localEngine.printText(EngineClass.debugType.Debug, "Starting Engine");
+            localEngine.PrintText(debugType.Debug, "Starting Engine");
             localEngine.startGame();
 
             localEngine.FPS = 60;
         }
+
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
@@ -89,17 +104,6 @@ namespace GameEngine
         }
     }
 
-
-
-    //public class Player : GameObject
-    //{
-    //    public Player() : base()
-    //    {
-    //        Box b = new Box(0, 0, Color.Blue, 10, 10);
-    //        AddComponent(b);
-    //    }
-    //}
-
     internal class Game : EngineClass
     {
         int playerSpeed = 20;
@@ -108,16 +112,24 @@ namespace GameEngine
         {
             debug = debugType.Error;
             FPSTick = 50;
-            //CreateObject(win.Width/2 - 40, win.Height/2 - 40, 40, 40, colour: Color.DarkGreen, name: "Player");
         }
 
 
-        public override bool GameLogic()
+        public override void GameLogic()
         {
             // This runs every frame and handles game logic
             GameObject player = GetObjectByName("Player");
-
             SpriteComponent playerSpriteComp = (SpriteComponent)player.GetComponent("SpriteComponent");
+
+            GameObject GameResTextObj = GetUIObjectByName("GameRenderTextObj");
+            TextComponent GameResTextObjComp = (TextComponent)GameResTextObj.GetComponent("TextComponent");
+
+            GameResTextObjComp.SetText("Render Width: " + GameResolutionWidth.ToString() + ", Render Height: " + GameResolutionHeight.ToString());
+
+            GameObject WindowSizeTextObj = GetUIObjectByName("WindowSizeTextObj");
+            TextComponent WindowSizeTextObjComp = (TextComponent)WindowSizeTextObj.GetComponent("TextComponent");
+
+            WindowSizeTextObjComp.SetText("Window Width: " + WindowWidth.ToString() + ", Render Height: " + WindowHeight.ToString());
 
             // Handle Key Presses
 
@@ -129,30 +141,30 @@ namespace GameEngine
 
                     //printText(EngineClass.debugType.Debug, PressedKeys[i].ToString());
 
-                    if (PressedKeys[i] == Keys.W)
+                    if (PressedKeys[i] == Keys.W || PressedKeys[i] == Keys.Up)
                     {
                         player.moveUp(playerSpeed);
                         //playerSpriteComp.SetImageRotation(Rotation.Up);
                     }
-                    else if (PressedKeys[i] == Keys.S)
+                    else if (PressedKeys[i] == Keys.S || PressedKeys[i] == Keys.Down)
                     {
                         player.moveDown(playerSpeed);
                         //playerSpriteComp.SetImageRotation(Rotation.Down);
                     }
 
-                    if (PressedKeys[i] == Keys.A)
+                    if (PressedKeys[i] == Keys.A || PressedKeys[i] == Keys.Left)
                     {
                         player.moveLeft(playerSpeed);
                         playerSpriteComp.SetImageRotation(HRotation.Left, VRotation.Up);
                     }
-                    else if (PressedKeys[i] == Keys.D)
+                    else if (PressedKeys[i] == Keys.D || PressedKeys[i] == Keys.Right)
                     {
                         player.moveRight(playerSpeed);
                         playerSpriteComp.SetImageRotation(HRotation.Right, VRotation.Up);
                     }
 
-                    //printText(EngineClass.debugType.Debug, player.x.ToString());
-                    //printText(EngineClass.debugType.Debug, player.y.ToString());
+                    //printText(debugType.Debug, player.x.ToString());
+                    //printText(debugType.Debug, player.y.ToString());
                 }
                 PressedKeys.Clear();
 
@@ -176,10 +188,7 @@ namespace GameEngine
                 {
                     player.y = 0;
                 }
-
-                //SetObjectByName("Player", player); // Commit changes back to the engine
             }
-            return true; // we return true to notify the engine that we have finnished game logic pass successfully
         }
     }
 }

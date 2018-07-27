@@ -1,19 +1,20 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 
 namespace GameEngine
 {
-    enum HRotation
+    public enum HRotation
     {
         Left,
         Right
     }
-    enum VRotation
+    public enum VRotation
     {
         Up,
         Down
     }
 
-    class SpriteComponent : BaseComponent
+    public class SpriteComponent : BaseComponent
     {
         private int x;
         private int y;
@@ -21,8 +22,8 @@ namespace GameEngine
         private Image Img;
         private EngineClass engine;
 
-        public VRotation VertImgRotation = VRotation.Up;
-        public HRotation HorImgRotation = HRotation.Right;
+        VRotation VertImgRotation = VRotation.Up;
+        HRotation HorImgRotation = HRotation.Right;
 
 
 

@@ -2,7 +2,7 @@
 
 namespace GameEngine
 {
-    class TextComponent : BaseComponent
+    public class TextComponent : BaseComponent
     {
         private int x;
         private int y;
