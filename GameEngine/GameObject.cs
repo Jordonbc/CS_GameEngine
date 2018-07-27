@@ -5,6 +5,14 @@ using System.Drawing;
 
 namespace GameEngine
 {
+    public class InvalidComponentException : Exception
+    {
+        public InvalidComponentException(string message)
+           : base(message)
+        {
+        }
+    }
+
     public class GameObject
     {
         public string Name;
@@ -12,6 +20,7 @@ namespace GameEngine
         public int y = 0;
         public int width;
         public int height;
+
         private List<BaseComponent> Components = new List<BaseComponent>();
         private BufferedGraphics Buffer;
 
@@ -22,6 +31,47 @@ namespace GameEngine
         }
 
         public BufferedGraphics BufferedGFX { get => Buffer; set => Buffer = value; }
+
+        public void moveRight(int Amount)
+        {
+            x = x + Amount;
+        }
+
+        public void moveLeft(int Amount)
+        {
+            x = x - Amount;
+        }
+
+        public void moveUp(int Amount)
+        {
+            y = y - Amount;
+        }
+
+        public void moveDown(int Amount)
+        {
+            y = y + Amount;
+        }
+
+        public BaseComponent GetComponent(string name)
+        {
+            BaseComponent selectedComp = null;
+            for (int i = 0; i < Components.Count; i++)
+            {
+                if (Components[i].GetType().Name == name)
+                {
+                    selectedComp = Components[i];
+                    break;
+                }
+            }
+
+
+            if (selectedComp == null)
+                {
+                throw new InvalidComponentException("Component '" + name + "' does not exist!");
+            }
+
+            return selectedComp;
+        }
 
         public void Render()
         {

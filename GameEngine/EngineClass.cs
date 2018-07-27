@@ -43,6 +43,9 @@ namespace GameEngine
         private TimeSpan timeSpanFPS;
         private bool resizing = true;
         private bool isFirstFrame = true;
+        private GameObject FPSText;
+
+        public Graphics GraphicsSettings;
 
         public enum debugType
         {
@@ -54,11 +57,14 @@ namespace GameEngine
 
         public float CurrentFPS;
         public debugType debug = debugType.Debug;
-        public bool showFps = true;
+        public bool showFps = false;
         public int FPS = 30;
         public bool lockFPS = false;
         public List<Keys> PressedKeys = new List<Keys>();
         public Color DefaultColour = Color.FromArgb(200, 0, 255);
+        public int FPSTick = 100;
+
+
 
 
         public EngineClass(Form win)
@@ -66,6 +72,34 @@ namespace GameEngine
             window = win;
             GameWindowWidth = window.Width;
             GameWindowHeight = window.Height;
+            GraphicsSettings = win.CreateGraphics();
+
+            AddFPSCounter();
+            
+        }
+
+        public void AddFPSCounter()
+        {
+            if(FPSText == null)
+            {
+                //          ADDS A FPS COUNTER
+                FPSText = new GameObject("FPSText");
+                TextComponent tc = new TextComponent(this, FPSText, 0, 0, Color.White, "FPS TEXT", new FontFamily("Arial"), 12, FontStyle.Bold);
+                FPSText.AddComponent(tc);
+                FPSText.x = 1;
+                FPSText.y = 1;
+
+                CreateObject(FPSText);
+            }
+        }
+
+        public void RemoveFPSCounter()
+        {
+            if (FPSText != null)
+            {
+                DestroyObjectByName(FPSText.Name);
+                FPSText = null;
+            }
         }
 
         public void printText(debugType USERdebugType, string str)
@@ -104,6 +138,7 @@ namespace GameEngine
             Console.WriteLine(USERdebugType.ToString()+":"+" "+str);
             Console.BackgroundColor = old;
         }
+
         public void resizeGameCanvas(int Width, int Height)
         {
             if (debug == debugType.Debug) { printText(debugType.Debug, "resizing game canvas to " + Width + "x" + Height); }
@@ -129,7 +164,9 @@ namespace GameEngine
 
 
             if (BufferedGFX == null || resizing)
-            {
+            {   
+                if (BufferedGFX != null) BufferedGFX.Dispose();
+
                 if (debug == debugType.Warning) { printText(EngineClass.debugType.Warning, "'BufferedGFX' is NULL!"); ; }
                 context = BufferedGraphicsManager.Current;
                 context.MaximumBuffer = new Size(NewGameWindowWidth, NewGameWindowHeight);
@@ -140,7 +177,10 @@ namespace GameEngine
                 BufferedGFX.Graphics.ScaleTransform((float)NewGameWindowWidth/GameWindowWidth, (float)NewGameWindowHeight/GameWindowHeight);
                 resizing = false;
             }
-            
+
+            BufferedGFX.Graphics.SmoothingMode = GraphicsSettings.SmoothingMode;
+            BufferedGFX.Graphics.InterpolationMode = GraphicsSettings.InterpolationMode;
+
             if (lockFPS)
             {
                 if (CurrentFPS > 30 && CurrentFPS < 60)
@@ -171,6 +211,7 @@ namespace GameEngine
                 
             }
 
+            //BufferedGFX.Graphics.DrawString("test", new Font(new FontFamily("Arial"), 12f, FontStyle.Bold), new SolidBrush(Color.White), GameWindowWidth / 2, GameWindowHeight / 2);
             // END RENDER CODE
             if (debug == debugType.Debug) { printText(debugType.Debug, "rendering buffer to game window"); }
             BufferedGFX.Render();
@@ -267,6 +308,7 @@ namespace GameEngine
             int GameObjID = 0;
             for (int i = 0; i < GameObjects.Count; i++)
             {
+                //Console.WriteLine("OBJECT: '" + GameObjects[i].Name + "', ID: " + i.ToString());
                 if (GameObjects[i].Name == Name)
                 {
                     if (debug == debugType.Debug) { printText(EngineClass.debugType.Debug, "Object Found!"); }
@@ -352,6 +394,16 @@ namespace GameEngine
             return GameObj;
         }
 
+        public void DestroyObjectByName(string Name)
+        {
+            GameObjects.RemoveAt(GetObjectIDByName(Name));
+        }
+
+        public void DestroyObjectByID(int ID)
+        {
+            GameObjects.RemoveAt(ID);
+        }
+
         public virtual Boolean GameLogic()
         {
             return true;
@@ -365,6 +417,12 @@ namespace GameEngine
                 Calculate_FPS_StopWatch.Start();
                 try
                 {
+                    if (FPSText != null)
+                    {
+                        TextComponent FPSTEXTComp = (TextComponent)FPSText.GetComponent("TextComponent");
+                        FPSTEXTComp.SetText("FPS: " + CurrentFPS);
+                    }
+
                     // Only update the frame if it has successfully executed game logic
                     if (GameLogic())
                     {
@@ -383,8 +441,6 @@ namespace GameEngine
                 Calculate_FPS_StopWatch.Stop();
                 timeSpanFPS = Calculate_FPS_StopWatch.Elapsed;
                 Calculate_FPS_StopWatch.Reset();
-
-                CurrentFPS = 1000 / timeSpanFPS.Milliseconds;
             }
         }
 
@@ -394,13 +450,14 @@ namespace GameEngine
             {
                 try
                 {
+                    CurrentFPS = 1000 / timeSpanFPS.Milliseconds; // Set FPS
                     string elapsedTime = String.Format("{0}ms, {1}FPS", timeSpanFPS.Milliseconds, 1000 / timeSpanFPS.Milliseconds);
                     if (showFps) { printText(debugType.Debug, elapsedTime); }
                 }
                 catch(DivideByZeroException)
                 { }
                 
-                Thread.Sleep(100);
+                Thread.Sleep(FPSTick);
             }
             
         }

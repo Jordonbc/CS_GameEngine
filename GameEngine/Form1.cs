@@ -34,26 +34,40 @@ namespace GameEngine
             Console.Clear();
 
             Console.WriteLine("Debug Console Initialized");
+            
 
             localEngine = new Game(this);
             //localEngine.debug = EngineClass.debugType.Debug;
+
+            
 
             localEngine.printText(EngineClass.debugType.Debug, "'localEngine' Defined!");
 
             localEngine.printText(EngineClass.debugType.Debug, "'player' Defined!");
 
-            //localEngine.SetBackgroundColour(255/2, 255/5, 255/2);
+            localEngine.SetBackgroundColour(255/2, 255/5, 255/2);
 
             //localEngine.printText(EngineClass.debugType.Debug, "player.Index = " + player.index);
 
             //localEngine.CreateObject(GameObj: new Player());
 
-            //                       engine reference      obj ref
-            BoxComponent c = new BoxComponent(localEngine, Player, 20 , 0, Color.Red, 50, 50);
-            Player.AddComponent(c);
+            localEngine.GraphicsSettings.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+            localEngine.GraphicsSettings.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
 
-            BoxComponent b = new BoxComponent(localEngine, Player, 0, 0, Color.Blue, 20, 20);
-            Player.AddComponent(b);
+            //                       engine reference      obj ref
+            //BoxComponent c = new BoxComponent(localEngine, Player, 20 , 0, Color.Red, 50, 50);
+            //Player.AddComponent(c);
+
+            //BoxComponent b = new BoxComponent(localEngine, Player, 0, 0, Color.Blue, 20, 20);
+            //Player.AddComponent(b);
+
+            Player.x = this.Width / 2 - Player.width / 2;
+            Player.y = this.Height / 2 - Player.height / 2;
+
+            SpriteComponent spr = new SpriteComponent(localEngine, Player, 0, 0, 50, 50, Image.FromFile("Mario.jpg"));
+            //spr.resizeImage(50, 50);
+            spr.MakeTransparent();
+            Player.AddComponent(spr);
 
             localEngine.CreateObject(Player);
 
@@ -75,6 +89,8 @@ namespace GameEngine
         }
     }
 
+
+
     //public class Player : GameObject
     //{
     //    public Player() : base()
@@ -86,18 +102,23 @@ namespace GameEngine
 
     internal class Game : EngineClass
     {
-        int playerSpeed = 10;
+        int playerSpeed = 20;
 
         public Game(Form win) : base(win)
         {
             debug = debugType.Error;
+            FPSTick = 50;
             //CreateObject(win.Width/2 - 40, win.Height/2 - 40, 40, 40, colour: Color.DarkGreen, name: "Player");
         }
+
 
         public override bool GameLogic()
         {
             // This runs every frame and handles game logic
             GameObject player = GetObjectByName("Player");
+
+            SpriteComponent playerSpriteComp = (SpriteComponent)player.GetComponent("SpriteComponent");
+
             // Handle Key Presses
 
             if (PressedKeys.Count > 0)
@@ -110,24 +131,28 @@ namespace GameEngine
 
                     if (PressedKeys[i] == Keys.W)
                     {
-                        player.y -= playerSpeed;
+                        player.moveUp(playerSpeed);
+                        //playerSpriteComp.SetImageRotation(Rotation.Up);
                     }
                     else if (PressedKeys[i] == Keys.S)
                     {
-                        player.y += playerSpeed;
+                        player.moveDown(playerSpeed);
+                        //playerSpriteComp.SetImageRotation(Rotation.Down);
                     }
 
                     if (PressedKeys[i] == Keys.A)
                     {
-                        player.x -= playerSpeed;
+                        player.moveLeft(playerSpeed);
+                        playerSpriteComp.SetImageRotation(HRotation.Left, VRotation.Up);
                     }
                     else if (PressedKeys[i] == Keys.D)
                     {
-                        player.x += playerSpeed;
+                        player.moveRight(playerSpeed);
+                        playerSpriteComp.SetImageRotation(HRotation.Right, VRotation.Up);
                     }
 
-                    printText(EngineClass.debugType.Debug, player.x.ToString());
-                    printText(EngineClass.debugType.Debug, player.y.ToString());
+                    //printText(EngineClass.debugType.Debug, player.x.ToString());
+                    //printText(EngineClass.debugType.Debug, player.y.ToString());
                 }
                 PressedKeys.Clear();
 
