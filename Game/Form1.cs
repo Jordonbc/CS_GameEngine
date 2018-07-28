@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GameEngine.Components;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -8,21 +9,19 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Runtime.InteropServices;
-using GameEngine;
-
 
 namespace GameEngine
 {
     public partial class Form1 : Form
     {
-
         Game localEngine;
         //GameObject player;
         GameObject Player = new GameObject("Player");
 
         GameObject GameRenderTextObj = new GameObject("GameRenderTextObj");
         GameObject WindowSizeTextObj = new GameObject("WindowSizeTextObj");
+        Sound GMusic = new Sound("Music.wav");
+        Sound MClick = new Sound("laser7.wav");
 
         public Form1()
         {
@@ -40,8 +39,8 @@ namespace GameEngine
             Console.WriteLine("Debug Console Initialized");
 
             localEngine = new Game(this);
-            localEngine.GameResolutionWidth = 1920;
-            localEngine.GameResolutionHeight = 1080;
+            localEngine.GameResolutionWidth = 1280;
+            localEngine.GameResolutionHeight = 720;
 
             localEngine.AddFPSCounter();
 
@@ -75,8 +74,8 @@ namespace GameEngine
             //BoxComponent b = new BoxComponent(localEngine, Player, 0, 0, Color.Blue, 20, 20);
             //Player.AddComponent(b);
 
-            Player.x = this.Width / 2 - Player.width / 2;
-            Player.y = this.Height / 2 - Player.height / 2;
+            Player.x = localEngine.GameResolutionWidth / 2 - Player.width / 2;
+            Player.y = localEngine.GameResolutionHeight / 2 - Player.height / 2;
 
             SpriteComponent spr = new SpriteComponent(localEngine, Player, 0, 0, 50, 50, Image.FromFile("Mario.png"));
             //spr.resizeImage(50, 50);
@@ -87,6 +86,8 @@ namespace GameEngine
 
             localEngine.PrintText(debugType.Debug, "Starting Engine");
             localEngine.startGame();
+
+            GMusic.PlaySound();
 
             localEngine.FPS = 60;
         }
@@ -101,6 +102,11 @@ namespace GameEngine
         private void Form1_Resize(object sender, EventArgs e)
         {
             localEngine.resizeGameCanvas(this.Width, this.Height);
+        }
+
+        private void Form1_MouseClick(object sender, MouseEventArgs e)
+        {
+            MClick.PlaySound();
         }
     }
 

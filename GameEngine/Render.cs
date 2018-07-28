@@ -10,7 +10,7 @@ namespace GameEngine
         {
             if (isFirstFrame)
             {
-                resizeGameCanvas(GameResolutionWidth, GameResolutionHeight);
+                resizeGameCanvas(WindowWidth, WindowHeight);
                 isFirstFrame = false;
             }
 
@@ -24,7 +24,9 @@ namespace GameEngine
 
                 BufferedGFX = context.Allocate(window.CreateGraphics(),
                      new Rectangle(0, 0, WindowWidth, WindowHeight)); // CREATE BUFFER
+
                 if (debug == debugType.Debug) { PrintText(debugType.Warning, "'BufferedGFX' = " + BufferedGFX.ToString()); }
+                //Console.WriteLine("RRR");
 
                 Rescale();
             }

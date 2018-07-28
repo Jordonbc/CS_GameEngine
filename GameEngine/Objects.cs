@@ -110,56 +110,24 @@ namespace GameEngine
 
         public int GetObjectIDByName(string Name)
         {
-            bool found = false;
-            int GameObjID = 0;
-            for (int i = 0; i < GameObjects.Count; i++)
+
+            int a = GameObjects.FindIndex(x => x.Name.Contains(Name));
+            if (a == -1)
             {
-                //Console.WriteLine("OBJECT: '" + GameObjects[i].Name + "', ID: " + i.ToString());
-                if (GameObjects[i].Name == Name)
+                a = UIObjects.FindIndex(x => x.Name.Contains(Name));
+                if (a == -1)
                 {
-                    if (debug == debugType.Debug) { PrintText(debugType.Debug, "Object Found!"); }
-                    found = true;
-                    GameObjID = i;
-                    break;
+                    throw new InvalidObjectException("Cannot Find Specified Game Object '" + Name + "'");
                 }
             }
-
-
-            for (int i = 0; i < UIObjects.Count; i++)
-            {
-                //Console.WriteLine("OBJECT: '" + UIObjects[i].Name + "', ID: " + i.ToString());
-                if (UIObjects[i].Name == Name)
-                {
-                    if (debug == debugType.Debug) { PrintText(debugType.Debug, "Object Found!"); }
-                    //PrintText(debugType.Debug, "Object Found!: " + UIObjects[i].Name);
-                    found = true;
-                    GameObjID = i;
-                    break;
-                }
-            }
-
-            if (found)
-            {
-                return GameObjID;
-            }
-            else
-            {
-                throw new InvalidObjectException("Cannot Find Specified Game Object '" + Name + "'");
-            }
+            return a;
         }
 
         public void SetObject(int index, GameObject gameObj) => GameObjects[index] = gameObj;
 
         public void SetObjectByName(string Name, GameObject gameObj)
         {
-            for (int i = 0; i < GameObjects.Count; i++)
-            {
-                if (GameObjects[i].Name == Name)
-                {
-                    GameObjects[i] = gameObj;
-                    break;
-                }
-            }
+            GameObjects[GameObjects.FindIndex(x => x.Name.Contains(Name))] = gameObj;
         }
     }
 }

@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Background.cs" />
+    <Compile Include="Components\Sound.cs" />
     <Compile Include="Drawing.cs" />
     <Compile Include="enums.cs" />
     <Compile Include="FpsCounter.cs" />

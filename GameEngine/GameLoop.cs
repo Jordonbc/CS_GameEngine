@@ -16,15 +16,18 @@ namespace GameEngine
                     if (FPSText != null)
                     {
                         TextComponent FPSTEXTComp = (TextComponent)FPSText.GetComponent("TextComponent");
-                        FPSTEXTComp.SetText("FPS: " + CurrentFPS);
+                        FPSTEXTComp.SetText("FPS: " + CurrentFPS + ", MS: " + CurrentMS);
                     }
 
                     GameLogic();
 
                     Render();
 
-                    if (1000 / FPS >= 0)
-                    { Thread.Sleep(1000 / FPS); }
+                    if (FPS > 0)
+                    {
+                        if (1000 / FPS > 0)
+                        { Thread.Sleep(1000 / FPS); }
+                    }
                 }
                 catch (Exception e)
                 {
