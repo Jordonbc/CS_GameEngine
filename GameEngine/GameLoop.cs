@@ -13,12 +13,6 @@ namespace GameEngine
                 Calculate_FPS_StopWatch.Start();
                 try
                 {
-                    if (FPSText != null)
-                    {
-                        TextComponent FPSTEXTComp = (TextComponent)FPSText.GetComponent("TextComponent");
-                        FPSTEXTComp.SetText("FPS: " + CurrentFPS + ", MS: " + CurrentMS);
-                    }
-
                     GameLogic();
 
                     Render();

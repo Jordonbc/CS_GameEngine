@@ -26,7 +26,7 @@ namespace GameEngine
 
         public override void Render()
         {
-            engine.DrawBox(parentObject.x + x,parentObject.y + y, height, width, colour);
+            engine.DrawBox(parentObject.GetX() + x,parentObject.GetY() + y, height, width, colour);
         }
     }
 }

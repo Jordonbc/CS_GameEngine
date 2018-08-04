@@ -70,6 +70,7 @@
     <Compile Include="enums.cs" />
     <Compile Include="FpsCounter.cs" />
     <Compile Include="GameLoop.cs" />
+    <Compile Include="Objects\PlayerObject.cs" />
     <Compile Include="Objects.cs" />
     <Compile Include="PrintText.cs" />
     <Compile Include="Program.cs" />
@@ -81,8 +82,9 @@
     <Compile Include="Components\BoxComponent.cs" />
     <Compile Include="Components\BaseComponent.cs" />
     <Compile Include="EngineClass.cs" />
-    <Compile Include="GameObject.cs" />
+    <Compile Include="Objects\GameObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Structs.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

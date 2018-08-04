@@ -28,6 +28,8 @@ namespace GameEngine
         public int FPSTick = 100;
         public int GameResolutionWidth = 640;
         public int GameResolutionHeight = 360;
+        public int GameCanvasWidth = 640;
+        public int GameCanvasHeight = 360;
         public int WindowWidth = 1280;
         public int WindowHeight = 720;
         public BufferedGraphics BufferedGFX;
@@ -47,9 +49,8 @@ namespace GameEngine
         private bool resizing = true;
         private bool isFirstFrame = true;
         private GameObject FPSText;
-
-        
-
+        public int CameraX;
+        public int CameraY;
 
 
 
@@ -60,9 +61,13 @@ namespace GameEngine
             //GameResolutionHeight = window.Height;
             GraphicsSettings = win.CreateGraphics();
 
-            Console.WriteLine(win.Width);
+            
+
+            //Console.WriteLine(win.Width);
             WindowWidth = win.Width;
             WindowHeight = win.Height;
+            GameCanvasWidth = win.Width;
+            GameCanvasHeight = win.Height;
 
             resizeGameCanvas(WindowWidth, WindowHeight);
 
@@ -84,7 +89,21 @@ namespace GameEngine
         }
 
         public virtual void GameLogic()
-        { }
+        {
+            if (FPSText != null)
+            {
+                TextComponent FPSTEXTComp = (TextComponent)FPSText.GetComponent("TextComponent");
+                FPSTEXTComp.SetText("FPS: " + CurrentFPS + ", MS: " + CurrentMS);
+            }
+
+            for (int i = 0; i < GameObjects.Count; i++)
+            {
+                GameObjects[i].Tick();
+            }
+
+            //GameResolutionWidth = Camera.x;
+            //GameResolutionHeight = Camera.y;
+        }
 
         public void FpsTick()
         {

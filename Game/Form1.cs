@@ -1,13 +1,6 @@
 ﻿using GameEngine.Components;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace GameEngine
@@ -16,12 +9,7 @@ namespace GameEngine
     {
         Game localEngine;
         //GameObject player;
-        GameObject Player = new GameObject("Player");
-
-        GameObject GameRenderTextObj = new GameObject("GameRenderTextObj");
-        GameObject WindowSizeTextObj = new GameObject("WindowSizeTextObj");
-        Sound GMusic = new Sound("Music.wav");
-        Sound MClick = new Sound("laser7.wav");
+        
 
         public Form1()
         {
@@ -44,6 +32,15 @@ namespace GameEngine
 
             localEngine.AddFPSCounter();
 
+            Player Player = new Player(localEngine, "Player");
+
+            GameObject Floor = new GameObject(localEngine, "Floor");
+
+            GameObject GameRenderTextObj = new GameObject(localEngine, "GameRenderTextObj");
+            GameObject WindowSizeTextObj = new GameObject(localEngine, "WindowSizeTextObj");
+            Sound GMusic = new Sound("Music.wav");
+            Sound MClick = new Sound("laser7.wav");
+
             TextComponent tc = new TextComponent(localEngine, GameRenderTextObj, 1, 20, Color.White, "Resolution Width", new FontFamily("Arial"), 12);
             GameRenderTextObj.AddComponent(tc);
 
@@ -54,32 +51,27 @@ namespace GameEngine
             localEngine.CreateUIObject(GameRenderTextObj);
             localEngine.CreateUIObject(WindowSizeTextObj);
 
+            BoxComponent b = new BoxComponent(localEngine, Floor, 0, 0, Color.Black, 200, 200);
+            Floor.AddComponent(b);
+            Floor.SetX(10);
+            Floor.SetY(localEngine.GameResolutionHeight - 20);
+
+            localEngine.CreateObject(Floor);
+
             localEngine.PrintText(debugType.Debug, "'localEngine' Defined!");
 
             localEngine.PrintText(debugType.Debug, "'player' Defined!");
 
             localEngine.SetBackgroundColour(255/2, 255/5, 255/2);
 
-            //localEngine.printText(EngineClass.debugType.Debug, "player.Index = " + player.index);
-
-            //localEngine.CreateObject(GameObj: new Player());
-
             localEngine.GraphicsSettings.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
             localEngine.GraphicsSettings.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
 
-            //                       engine reference      obj ref
-            //BoxComponent c = new BoxComponent(localEngine, Player, 20 , 0, Color.Red, 50, 50);
-            //Player.AddComponent(c);
-
-            //BoxComponent b = new BoxComponent(localEngine, Player, 0, 0, Color.Blue, 20, 20);
-            //Player.AddComponent(b);
-
-            Player.x = localEngine.GameResolutionWidth / 2 - Player.width / 2;
-            Player.y = localEngine.GameResolutionHeight / 2 - Player.height / 2;
+            Player.SetX(localEngine.GameResolutionWidth / 2 - Player.width / 2);
+            Player.SetY(localEngine.GameResolutionHeight / 2 - Player.height / 2);
 
             SpriteComponent spr = new SpriteComponent(localEngine, Player, 0, 0, 50, 50, Image.FromFile("Mario.png"));
-            //spr.resizeImage(50, 50);
-            //spr.MakeTransparent();
+
             Player.AddComponent(spr);
 
             localEngine.CreateObject(Player);
@@ -104,13 +96,26 @@ namespace GameEngine
             localEngine.resizeGameCanvas(this.Width, this.Height);
         }
 
-        private void Form1_MouseClick(object sender, MouseEventArgs e)
+        private void Form1_MouseDown(object sender, MouseEventArgs e)
         {
-            MClick.PlaySound();
+            //MClick.PlaySound();
         }
     }
 
-    internal class Game : EngineClass
+    class Player : PlayerObject
+    {
+        public Player(EngineClass engine, string name) : base(engine, name)
+        {
+
+        }
+        public override void Tick()
+        {
+            base.Tick();
+            //Console.WriteLine("Working!!!");
+        }
+    }
+
+    class Game : EngineClass
     {
         int playerSpeed = 20;
 
@@ -123,8 +128,10 @@ namespace GameEngine
 
         public override void GameLogic()
         {
+            base.GameLogic();
             // This runs every frame and handles game logic
-            GameObject player = GetObjectByName("Player");
+
+            PlayerObject player = (Player)GetObjectByName("Player");
             SpriteComponent playerSpriteComp = (SpriteComponent)player.GetComponent("SpriteComponent");
 
             GameObject GameResTextObj = GetUIObjectByName("GameRenderTextObj");
@@ -137,8 +144,11 @@ namespace GameEngine
 
             WindowSizeTextObjComp.SetText("Window Width: " + WindowWidth.ToString() + ", Render Height: " + WindowHeight.ToString());
 
-            // Handle Key Presses
+            // Update the camera position depending on the player pos
+            CameraX = player.GetX();
+            CameraY = player.GetY();
 
+            // Handle Key Presses
             if (PressedKeys.Count > 0)
             {
                 for (int i = 0; i < PressedKeys.Count; i++)
@@ -149,6 +159,7 @@ namespace GameEngine
 
                     if (PressedKeys[i] == Keys.W || PressedKeys[i] == Keys.Up)
                     {
+
                         player.moveUp(playerSpeed);
                         //playerSpriteComp.SetImageRotation(Rotation.Up);
                     }
@@ -175,24 +186,24 @@ namespace GameEngine
                 PressedKeys.Clear();
 
                 // Handle Collision
-                if (player.x + player.width > GetCanvasWidth())
+                if (player.GetX() + player.width > GameResolutionWidth)
                 {
-                    player.x = GetCanvasWidth() - player.width;
+                    player.SetX(GameResolutionWidth - player.width);
                 }
 
-                else if (player.x < 0)
+                else if (player.GetX() < 0)
                 {
-                    player.x = 0;
+                    player.SetX(0);
                 }
 
-                if (player.y + player.height > GetCanvasHeight())
+                if (player.GetY() + player.height > GameResolutionHeight)
                 {
-                    player.y = GetCanvasHeight() - player.height;
+                    player.SetY(GameResolutionHeight - player.height);
                 }
 
-                else if (player.y < 0)
+                else if (player.GetY() < 0)
                 {
-                    player.y = 0;
+                    player.SetY(0);
                 }
             }
         }

@@ -9,11 +9,11 @@ namespace GameEngine
             if (FPSText == null)
             {
                 //          ADDS A FPS COUNTER
-                FPSText = new GameObject("FPSText");
+                FPSText = new GameObject(this, "FPSText");
                 TextComponent tc = new TextComponent(this, FPSText, 0, 0, Color.White, "FPS TEXT", new FontFamily("Arial"), 12, FontStyle.Bold);
                 FPSText.AddComponent(tc);
-                FPSText.x = 1;
-                FPSText.y = 1;
+                FPSText.SetX(1);
+                FPSText.SetY(1);
 
                 CreateUIObject(FPSText);
             }

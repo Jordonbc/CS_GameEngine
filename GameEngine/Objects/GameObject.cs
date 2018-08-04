@@ -15,45 +15,86 @@ namespace GameEngine
 
     public class GameObject : IDisposable
     {
+        protected int x = 0;
+        protected int y = 0;
         public string Name;
-        public int x = 0;
-        public int y = 0;
-        public int width;
-        public int height;
+        private int CameraX;
+        private int CameraY;
+        private EngineClass engine;
+        public bool isPlayer = false;
 
         private List<BaseComponent> Components = new List<BaseComponent>();
-        private BufferedGraphics Buffer;
 
 
         bool disposed = false;
 
         // Constructor
-        public GameObject(string name)
+        public GameObject(EngineClass engine, string name)
         {
             Name = name;
+            CameraX = engine.CameraX;
+            CameraY = engine.CameraY;
+            this.engine = engine;
         }
 
-        public BufferedGraphics BufferedGFX { get => Buffer; set => Buffer = value; }
-
-        public void moveRight(int Amount)
+        public int GetX()
         {
-            x = x + Amount;
+            if (!isPlayer)
+            {
+                return CameraX + x;
+            }
+            else
+            {
+                return x;
+            }
+            
         }
 
-        public void moveLeft(int Amount)
+        public int GetY()
         {
-            x = x - Amount;
+            if (!isPlayer)
+            {
+                return CameraY + y;
+            }
+            else
+            {
+                return y;
+            }
         }
 
-        public void moveUp(int Amount)
+        public void SetX(int newX)
         {
-            y = y - Amount;
+            if (!isPlayer)
+            {
+                x = CameraX + newX;
+            }
+            else
+            {
+                x = newX;
+            }
         }
 
-        public void moveDown(int Amount)
+        public void SetY(int newY)
         {
-            y = y + Amount;
+            if (!isPlayer)
+            {
+                y = CameraY + newY;
+            }
+            else
+            {
+                y = newY;
+            }
         }
+
+        public Rectangle CollisionBox()
+        {
+            return new Rectangle(x, y, width, height);
+        }
+
+
+        public BufferedGraphics BufferedGFX { get; set; }
+        public int width { get; set; } = 1;
+        public int height { get; set; } = 1;
 
         public BaseComponent GetComponent(string name)
         {
@@ -85,6 +126,13 @@ namespace GameEngine
                 //Console.WriteLine("Rendering component: " + Components[i].GetType().Name);
                 Components[i].Render();
             }
+        }
+
+        public virtual void Tick()
+        {
+            // update camera offsets
+            CameraX = engine.CameraX;
+            CameraY = engine.CameraY;
         }
         
         public void recalculateSize()
