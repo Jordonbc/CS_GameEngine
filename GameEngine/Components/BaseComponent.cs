@@ -7,8 +7,7 @@ namespace GameEngine
     {
         // Constructor
         public GameObject parentObject;
-        public int width = 0;
-        public int height = 0;
+        public Rectangle rectangle;
 
         private bool disposed;
 
@@ -19,6 +18,8 @@ namespace GameEngine
         }
 
         public abstract void Render();
+
+        public abstract void Tick();
 
         /// <summary>
         /// Destructor

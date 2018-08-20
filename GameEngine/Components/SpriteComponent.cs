@@ -33,11 +33,9 @@ namespace GameEngine
             this.y = y;
             this.engine = engine;
             this.Img = Img;
-            base.width = width;
-            base.height = height;
             VertImgRotation = VRotation.Up;
             HorImgRotation = HRotation.Right;
-            rect = new Rectangle(base.parentObject.x, base.parentObject.y, width, height);
+            rect = new Rectangle(base.parentObject.GetX(), base.parentObject.GetY(), width, height);
         }
 
         public void MakeTransparent()
@@ -75,13 +73,19 @@ namespace GameEngine
 
         public void resizeImage(int width, int height)
         {
-            rect = new Rectangle(base.parentObject.x, base.parentObject.y, width, height);
+            rect = new Rectangle(base.parentObject.GetX(), base.parentObject.GetY(), width, height);
         }
         public override void Render()
         {
-            rect = new Rectangle(base.parentObject.x, base.parentObject.y, rect.Width, rect.Height);
+            //Console.WriteLine("RENDERING SPRITE");
+            rect = new Rectangle(base.parentObject.GetX(), base.parentObject.GetY(), rect.Width, rect.Height);
             engine.BufferedGFX.Graphics.DrawImage(Img, rect);
             //engine.DrawBox(parentObject.x + x,parentObject.y + y, height, width, colour);
+        }
+
+        public override void Tick()
+        {
+
         }
     }
 }

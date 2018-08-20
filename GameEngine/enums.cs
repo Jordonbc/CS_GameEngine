@@ -5,3 +5,11 @@
     Warning,
     Error
 };
+public enum Axis
+{
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT,
+    NULL
+};

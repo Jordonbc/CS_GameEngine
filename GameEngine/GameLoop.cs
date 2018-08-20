@@ -13,11 +13,16 @@ namespace GameEngine
                 Calculate_FPS_StopWatch.Start();
                 try
                 {
-                    if (FPSText != null)
+                    for (int i = 0; i < GameObjects.Count; i++)
                     {
-                        TextComponent FPSTEXTComp = (TextComponent)FPSText.GetComponent("TextComponent");
-                        FPSTEXTComp.SetText("FPS: " + CurrentFPS + ", MS: " + CurrentMS);
+                        GameObjects[i].Tick();
                     }
+
+                    for (int i = 0; i < UIObjects.Count; i++)
+                    {
+                        UIObjects[i].Tick();
+                    }
+
 
                     GameLogic();
 

@@ -16,10 +16,7 @@ namespace GameEngine
     {
         Game localEngine;
         //GameObject player;
-        GameObject Player = new GameObject("Player");
-
-        GameObject GameRenderTextObj = new GameObject("GameRenderTextObj");
-        GameObject WindowSizeTextObj = new GameObject("WindowSizeTextObj");
+        
         Sound GMusic = new Sound("Music.wav");
         Sound MClick = new Sound("laser7.wav");
 
@@ -41,6 +38,26 @@ namespace GameEngine
             localEngine = new Game(this);
             localEngine.GameResolutionWidth = 1280;
             localEngine.GameResolutionHeight = 720;
+            localEngine.Gravity = 1;
+
+            Player Player = new Player("Player", localEngine);
+
+            GameObject Ground = new GameObject("Ground", localEngine);
+
+            BoxComponent b = new BoxComponent(localEngine, Ground, Color.Brown, new Rectangle(0, 0, localEngine.GameResolutionWidth, 50));
+            Ground.AddComponent(b);
+            Ground.SetX(0);
+            Ground.SetY(localEngine.GameResolutionHeight - 100);
+            Ground.GravityScale = 0;
+            Console.WriteLine(Ground.GetY());
+
+            localEngine.CreateObject(Ground);
+
+            //Player.CanTick = false;
+            Player.GravityScale = 1;
+
+            GameObject GameRenderTextObj = new GameObject("GameRenderTextObj", localEngine);
+            GameObject WindowSizeTextObj = new GameObject("WindowSizeTextObj", localEngine);
 
             localEngine.AddFPSCounter();
 
@@ -68,14 +85,14 @@ namespace GameEngine
             localEngine.GraphicsSettings.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
 
             //                       engine reference      obj ref
-            //BoxComponent c = new BoxComponent(localEngine, Player, 20 , 0, Color.Red, 50, 50);
+            //BoxComponent c = new BoxComponent(localEngine, Player, 20 , 0, Color.Blue, 50, 50);
             //Player.AddComponent(c);
 
             //BoxComponent b = new BoxComponent(localEngine, Player, 0, 0, Color.Blue, 20, 20);
             //Player.AddComponent(b);
 
-            Player.x = localEngine.GameResolutionWidth / 2 - Player.width / 2;
-            Player.y = localEngine.GameResolutionHeight / 2 - Player.height / 2;
+            Player.SetX(localEngine.GameResolutionWidth / 2 - Player.GetWidth() / 2);
+            Player.SetY(localEngine.GameResolutionHeight / 2 - Player.GetHeight() / 2);
 
             SpriteComponent spr = new SpriteComponent(localEngine, Player, 0, 0, 50, 50, Image.FromFile("Mario.png"));
             //spr.resizeImage(50, 50);
@@ -110,7 +127,25 @@ namespace GameEngine
         }
     }
 
-    internal class Game : EngineClass
+    internal class Player : PlayerObject
+    {
+        public Player(String PlayerName, EngineClass engine) : base(PlayerName, engine)
+        {
+            
+        }
+
+        public override void OnDeath()
+        {
+            base.OnDeath();
+        }
+
+        public override void Tick()
+        {
+            base.Tick();
+        }
+    }
+
+    class Game : EngineClass
     {
         int playerSpeed = 20;
 
@@ -124,7 +159,7 @@ namespace GameEngine
         public override void GameLogic()
         {
             // This runs every frame and handles game logic
-            GameObject player = GetObjectByName("Player");
+            Player player = (Player)GetObjectByName("Player");
             SpriteComponent playerSpriteComp = (SpriteComponent)player.GetComponent("SpriteComponent");
 
             GameObject GameResTextObj = GetUIObjectByName("GameRenderTextObj");
@@ -152,11 +187,13 @@ namespace GameEngine
                         player.moveUp(playerSpeed);
                         //playerSpriteComp.SetImageRotation(Rotation.Up);
                     }
-                    else if (PressedKeys[i] == Keys.S || PressedKeys[i] == Keys.Down)
-                    {
-                        player.moveDown(playerSpeed);
-                        //playerSpriteComp.SetImageRotation(Rotation.Down);
-                    }
+
+                    // REMOVED S to go down because gravity pulls the player down
+                    //else if (PressedKeys[i] == Keys.S || PressedKeys[i] == Keys.Down)
+                    //{
+                    //    player.moveDown(playerSpeed);
+                    //    //playerSpriteComp.SetImageRotation(Rotation.Down);
+                    //}
 
                     if (PressedKeys[i] == Keys.A || PressedKeys[i] == Keys.Left)
                     {
@@ -175,25 +212,25 @@ namespace GameEngine
                 PressedKeys.Clear();
 
                 // Handle Collision
-                if (player.x + player.width > GetCanvasWidth())
-                {
-                    player.x = GetCanvasWidth() - player.width;
-                }
+                //if (player.GetX() + player.GetWidth() > GetCanvasWidth())
+                //{
+                //    player.x = GetCanvasWidth() - player.width;
+                //}
 
-                else if (player.x < 0)
-                {
-                    player.x = 0;
-                }
+                //else if (player.x < 0)
+                //{
+                //    player.x = 0;
+                //}
 
-                if (player.y + player.height > GetCanvasHeight())
-                {
-                    player.y = GetCanvasHeight() - player.height;
-                }
+                //if (player.y + player.height > GetCanvasHeight())
+                //{
+                //    player.y = GetCanvasHeight() - player.height;
+                //}
 
-                else if (player.y < 0)
-                {
-                    player.y = 0;
-                }
+                //else if (player.y < 0)
+                //{
+                //    player.y = 0;
+                //}
             }
         }
     }

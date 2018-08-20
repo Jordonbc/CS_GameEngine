@@ -31,6 +31,7 @@ namespace GameEngine
         public int WindowWidth = 1280;
         public int WindowHeight = 720;
         public BufferedGraphics BufferedGFX;
+        public int Gravity = 10;
 
 
         private BufferedGraphicsContext context;
@@ -71,6 +72,11 @@ namespace GameEngine
             BufferedGFX = context.Allocate(window.CreateGraphics(),
                  new Rectangle(0, 0, WindowWidth, WindowHeight));
             Rescale();
+        }
+
+        public List<GameObject> GetGameObjects()
+        {
+            return GameObjects;
         }
 
         public int GetCanvasWidth()

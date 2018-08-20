@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 
 namespace GameEngine
 {
@@ -9,11 +10,10 @@ namespace GameEngine
             if (FPSText == null)
             {
                 //          ADDS A FPS COUNTER
-                FPSText = new GameObject("FPSText");
-                TextComponent tc = new TextComponent(this, FPSText, 0, 0, Color.White, "FPS TEXT", new FontFamily("Arial"), 12, FontStyle.Bold);
-                FPSText.AddComponent(tc);
-                FPSText.x = 1;
-                FPSText.y = 1;
+                FPSText = new FPSCounterObject("FPSText", this);
+
+                FPSText.SetX(1);
+                FPSText.SetY(1);
 
                 CreateUIObject(FPSText);
             }
@@ -26,6 +26,22 @@ namespace GameEngine
                 DestroyObjectByName(FPSText.Name);
                 FPSText = null;
             }
+        }
+    }
+
+    public class FPSCounterObject : GameObject
+    {
+        TextComponent FPSTEXTComp;
+
+        public FPSCounterObject(string name, EngineClass engine) : base(name, engine)
+        {
+            FPSTEXTComp = new TextComponent(engine, this, 0, 0, Color.White, "Text", new FontFamily("Arial"), 12, FontStyle.Regular);
+            AddComponent(FPSTEXTComp);
+        }
+
+        public override void Tick()
+        {
+            FPSTEXTComp.SetText("FPS: " + Engine.CurrentFPS + ", MS: " + Engine.CurrentMS);
         }
     }
 }
