@@ -18,19 +18,20 @@ namespace GameEngine
     public partial class EngineClass
     {
         public Graphics GraphicsSettings;
-        public float CurrentFPS;
+        public int CurrentFPS;
         public int CurrentMS;
         public debugType debug = debugType.Debug;
         public bool showFps = false;
         public int FPS = 30;
         public List<Keys> PressedKeys = new List<Keys>();
-        public Color DefaultColour = Color.FromArgb(200, 0, 255);
-        public int FPSTick = 100;
+        protected Color DefaultColour = Color.FromArgb(200, 0, 255);
+        protected int FPSTick = 100;
         public int GameResolutionWidth = 640;
         public int GameResolutionHeight = 360;
-        public int WindowWidth = 1280;
-        public int WindowHeight = 720;
+        protected int WindowWidth = 1280;
+        protected int WindowHeight = 720;
         public BufferedGraphics BufferedGFX;
+        public int Gravity = 5;
 
 
         private BufferedGraphicsContext context;
@@ -73,6 +74,11 @@ namespace GameEngine
             Rescale();
         }
 
+        public List<GameObject> GetGameObjects()
+        {
+            return GameObjects;
+        }
+
         public int GetCanvasWidth()
         {
             return GameResolutionWidth;
@@ -94,7 +100,7 @@ namespace GameEngine
                 {
                     CurrentMS = timeSpanFPS.Milliseconds;
                     CurrentFPS = 1000 / timeSpanFPS.Milliseconds; // Set FPS
-                    string elapsedTime = String.Format("{0}ms, {1}FPS", timeSpanFPS.Milliseconds, CurrentFPS);
+                    string elapsedTime = String.Format("{0}ms, {1}FPS", CurrentMS, CurrentFPS);
                     if (showFps) { PrintText(debugType.Debug, elapsedTime); }
                 }
                 catch(DivideByZeroException)

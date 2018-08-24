@@ -34,8 +34,13 @@ namespace GameEngine
 
         public override void Render()
         {
-            engine.BufferedGFX.Graphics.DrawString(Text, font, TextBrush, parentObject.x + x, parentObject.y + y);
+            engine.BufferedGFX.Graphics.DrawString(Text, font, TextBrush, parentObject.GetX() + x, parentObject.GetY() + y);
             //engine.DrawBox(parentObject.x + x, parentObject.y + y, height, width, colour);
+        }
+
+        public override void Tick()
+        {
+            
         }
     }
 }
