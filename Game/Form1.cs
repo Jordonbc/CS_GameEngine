@@ -1,13 +1,6 @@
 ﻿using GameEngine.Components;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace GameEngine
@@ -16,9 +9,9 @@ namespace GameEngine
     {
         Game localEngine;
         //GameObject player;
-        
-        Sound GMusic = new Sound("Music.wav");
-        Sound MClick = new Sound("laser7.wav");
+
+        SoundComponent GMusic = new SoundComponent("Music.wav");
+        SoundComponent MClick = new SoundComponent("laser7.wav");
 
         public Form1()
         {
@@ -38,7 +31,7 @@ namespace GameEngine
             localEngine = new Game(this);
             localEngine.GameResolutionWidth = 1280;
             localEngine.GameResolutionHeight = 720;
-            localEngine.Gravity = 1;
+            //localEngine.Gravity = 1;
 
             Player Player = new Player("Player", localEngine);
 
@@ -79,8 +72,6 @@ namespace GameEngine
 
             //localEngine.printText(EngineClass.debugType.Debug, "player.Index = " + player.index);
 
-            //localEngine.CreateObject(GameObj: new Player());
-
             localEngine.GraphicsSettings.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
             localEngine.GraphicsSettings.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
 
@@ -106,7 +97,7 @@ namespace GameEngine
 
             GMusic.PlaySound();
 
-            localEngine.FPS = 60;
+            localEngine.FPS = 60; // set fps of the game
         }
 
 
@@ -184,7 +175,7 @@ namespace GameEngine
 
                     if (PressedKeys[i] == Keys.W || PressedKeys[i] == Keys.Up)
                     {
-                        player.moveUp(playerSpeed);
+                        player.moveUp(60);
                         //playerSpriteComp.SetImageRotation(Rotation.Up);
                     }
 

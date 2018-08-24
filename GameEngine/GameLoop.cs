@@ -23,7 +23,6 @@ namespace GameEngine
                         UIObjects[i].Tick();
                     }
 
-
                     GameLogic();
 
                     Render();

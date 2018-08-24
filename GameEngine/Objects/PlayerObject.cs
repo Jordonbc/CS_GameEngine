@@ -9,6 +9,11 @@ namespace GameEngine
 
         }
 
+        public virtual void OnDeath()
+        {
+
+        }
+
         public void moveRight(int Amount)
         {
             rectangle.X = rectangle.X + Amount;
@@ -21,7 +26,7 @@ namespace GameEngine
 
         public void moveUp(int Amount)
         {
-            Console.WriteLine(IsOnGround());
+            //Console.WriteLine(IsOnGround());
             if (IsOnGround())
             {
                 rectangle.Y = rectangle.Y - Amount;
