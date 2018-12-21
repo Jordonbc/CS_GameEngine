@@ -60,8 +60,6 @@ namespace GameEngine
             }
 
             // END RENDER CODE
-            if (debug == debugType.Debug) { PrintText(debugType.Debug, "rendering buffer to game window"); }
-            BufferedGFX.Render();
         }
         private void RenderUI()
         {
@@ -81,8 +79,7 @@ namespace GameEngine
             }
 
             // END RENDER CODE
-            if (debug == debugType.Debug) { PrintText(debugType.Debug, "rendering buffer to game window"); }
-            BufferedGFX.Render();
+            
         }
         private void RenderAll(bool SetNeedsToRender = true)
         {
@@ -92,6 +89,9 @@ namespace GameEngine
             RenderBackground();
             RenderObjects();
             RenderUI();
+
+            if (debug == debugType.Debug) { PrintText(debugType.Debug, "rendering buffer to game window"); }
+            BufferedGFX.Render();
         }
     }
 }

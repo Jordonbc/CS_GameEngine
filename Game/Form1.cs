@@ -109,7 +109,14 @@ namespace GameEngine
 
         private void Form1_Resize(object sender, EventArgs e)
         {
-            localEngine.resizeGameCanvas(this.Width, this.Height);
+            try
+            {
+                localEngine.resizeGameCanvas(this.Width, this.Height);
+            }
+            catch (Exception)
+            {
+
+            }
         }
 
         private void Form1_MouseClick(object sender, MouseEventArgs e)
