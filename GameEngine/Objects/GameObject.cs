@@ -20,8 +20,9 @@ namespace GameEngine
         public bool isSolid = true;
         public bool CanTick = true;
         public bool isHit;
+        public bool isUI = false;
         
-        protected EngineClass Engine;
+        public EngineClass Engine;
 
         public Rectangle rectangle;
 
@@ -37,26 +38,116 @@ namespace GameEngine
             Engine = engine;
         }
 
-        public void SetX(int x) => rectangle.X = x;
+        public void SetX(int x)
+        {
+            if (!isUI)
+            {
+                rectangle.X = x + (int)Engine.GlobalCoords[0];
+            }
+            else
+            {
+                rectangle.X = x;
+            }
+        }
 
-        public void SetY(int y) => rectangle.Y = y;
+        public void SetY(int y)
+        {
+            if (!isUI)
+            {
+                rectangle.Y = y + (int)Engine.GlobalCoords[1];
+            }
+            else
+            {
+                rectangle.Y = y;
+            }
+            
+        }
 
-        public void SetWidth(int w) => rectangle.Width = w;
+        public void SetWidth(int w)
+        {
+            if (!isUI)
+            {
+                rectangle.Width = w * (int)Engine.GlobalScale[0];
+            }
+            else
+            {
+                rectangle.Width = w;
+            }
+        }
 
-        public void SetHeight(int h) => rectangle.Height = h;
+        public void SetHeight(int h)
+        {
+            if (!isUI)
+            {
+                rectangle.Height = h * (int)Engine.GlobalScale[1];
+            }
+            else
+            {
+                rectangle.Height = h;
+            }
+        }
 
+        public int GetX()
+        {
+            if (!isUI)
+            {
+                return rectangle.X + (int)Engine.GlobalCoords[0];
+            }
+            else
+            {
+                return rectangle.X;
+            }
+            
+        }
 
-        public int GetX() => rectangle.X;
+        public int GetY()
+        {
+            if (!isUI)
+            {
+                return rectangle.Y + (int)Engine.GlobalCoords[1];
+            }
+            else
+            {
+                return rectangle.Y;
+            }
+            
+        }
 
-        public int GetY() => rectangle.Y;
+        public int GetWidth()
+        {
+            if (!isUI)
+            {
+                return rectangle.Width * (int)Engine.GlobalScale[0];
+            }
+            else
+            {
+                return rectangle.Width;
+            }
+        }
 
-        public int GetWidth() => rectangle.Width;
-
-        public int GetHeight() => rectangle.Height;
+        public int GetHeight()
+        {
+            if(!isUI)
+            {
+                return rectangle.Height * (int)Engine.GlobalScale[1];
+            }
+            else
+            {
+                return rectangle.Height;
+            }
+        }
 
         private void setRectangle(int x, int y, int w, int h)
         {
-            rectangle = new Rectangle(x, y, w, h);
+            if (!isUI)
+            {
+                rectangle = new Rectangle(x + (int)Engine.GlobalCoords[0], y + (int)Engine.GlobalCoords[1],
+                    w + (int)Engine.GlobalScale[0], h + (int)Engine.GlobalScale[1]);
+            }
+            else
+            {
+                rectangle = new Rectangle(x, y, w, h);
+            }
         }
 
         public Rectangle GetRectangle()

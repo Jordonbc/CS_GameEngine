@@ -33,6 +33,12 @@ namespace GameEngine
             localEngine.GameResolutionHeight = 720;
             //localEngine.Gravity = 1;
 
+            GameObject BackgroundObj = new GameObject("BackgroundObj", localEngine);
+            SpriteComponent bgspriteComponent = new SpriteComponent(localEngine, BackgroundObj, 0, 0, 1920, 1080, Image.FromFile("city.jpg"));
+            BackgroundObj.AddComponent(bgspriteComponent);
+            BackgroundObj.isUI = true;
+            localEngine.CreateObject(BackgroundObj);
+
             Player Player = new Player("Player", localEngine);
 
             GameObject Ground = new GameObject("Ground", localEngine);
@@ -60,6 +66,9 @@ namespace GameEngine
             TextComponent tc2 = new TextComponent(localEngine, WindowSizeTextObj, 1, 50, Color.White, "Resolution Width", new FontFamily("Arial"), 12);
             WindowSizeTextObj.AddComponent(tc2);
 
+            GameRenderTextObj.isUI = true;
+            WindowSizeTextObj.isUI = true;
+
 
             localEngine.CreateUIObject(GameRenderTextObj);
             localEngine.CreateUIObject(WindowSizeTextObj);
@@ -68,7 +77,7 @@ namespace GameEngine
 
             localEngine.PrintText(debugType.Debug, "'player' Defined!");
 
-            localEngine.SetBackgroundColour(255/2, 255/5, 255/2);
+            //localEngine.SetBackgroundColour(255/2, 255/5, 255/2);
 
             //localEngine.printText(EngineClass.debugType.Debug, "player.Index = " + player.index);
 
@@ -180,7 +189,7 @@ namespace GameEngine
 
                     //printText(EngineClass.debugType.Debug, PressedKeys[i].ToString());
 
-                    if (PressedKeys[i] == Keys.W || PressedKeys[i] == Keys.Up)
+                    if (PressedKeys[i] == Keys.W)
                     {
                         player.moveUp(60);
                         //playerSpriteComp.SetImageRotation(Rotation.Up);
@@ -193,15 +202,47 @@ namespace GameEngine
                     //    //playerSpriteComp.SetImageRotation(Rotation.Down);
                     //}
 
-                    if (PressedKeys[i] == Keys.A || PressedKeys[i] == Keys.Left)
+                    if (PressedKeys[i] == Keys.A)
                     {
                         player.moveLeft(playerSpeed);
                         playerSpriteComp.SetImageRotation(HRotation.Left, VRotation.Up);
                     }
-                    else if (PressedKeys[i] == Keys.D || PressedKeys[i] == Keys.Right)
+                    else if (PressedKeys[i] == Keys.D)
                     {
                         player.moveRight(playerSpeed);
                         playerSpriteComp.SetImageRotation(HRotation.Right, VRotation.Up);
+                    }
+
+                    if (PressedKeys[i] == Keys.Up)
+                    {
+                        GlobalCoords[1] += 10;
+                    }
+                    if (PressedKeys[i] == Keys.Down)
+                    {
+                        GlobalCoords[1] -= 10;
+                    }
+
+                    if (PressedKeys[i] == Keys.Left)
+                    {
+                        GlobalCoords[0] += 10;
+                    }
+                    if (PressedKeys[i] == Keys.Right)
+                    {
+                        GlobalCoords[0] -= 10;
+                    }
+
+
+                    if (PressedKeys[i] == Keys.O)
+                    {
+                        GlobalScale[0] += (float)0.25;
+                        GlobalScale[1] += (float)0.25;
+                        //PrintText(debugType.Error, "GlobalScale X = " + GlobalScale[0].ToString() + ", Y = " + GlobalScale[1].ToString());
+                    }
+                    else if (PressedKeys[i] == Keys.P)
+                    {
+                        GlobalScale[0] -= (float)0.25;
+                        GlobalScale[1] -= (float)0.25;
+                        //PrintText(debugType.Error, "GlobalScale X = " + GlobalScale[0].ToString() + ", Y = " + GlobalScale[1].ToString());
                     }
 
                     //printText(debugType.Debug, player.x.ToString());

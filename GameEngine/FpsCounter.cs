@@ -14,6 +14,7 @@ namespace GameEngine
 
                 FPSText.SetX(1);
                 FPSText.SetY(1);
+                FPSText.isUI = true;
 
                 CreateUIObject(FPSText);
             }

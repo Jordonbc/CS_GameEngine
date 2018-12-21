@@ -33,6 +33,9 @@ namespace GameEngine
         public BufferedGraphics BufferedGFX;
         public int Gravity = 5;
 
+        public List<float> GlobalCoords = new List<float> {0, 0};
+        public List<float> GlobalScale = new List<float> { 1, 1 };
+
 
         private BufferedGraphicsContext context;
         private Form window;

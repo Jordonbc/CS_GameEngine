@@ -24,12 +24,12 @@ namespace GameEngine
 
         private void setRectangle(int x, int y, int w, int h)
         {
-            rectangle = new Rectangle(parentObject.GetX() + x, parentObject.GetY() + y, w, h);
+            rectangle = new Rectangle(parentObject.GetX() + x, parentObject.GetY() + y, w * (int)parentObject.Engine.GlobalScale[0], h * (int)parentObject.Engine.GlobalScale[1]);
         }
 
         private void setRectangle(Rectangle rect)
         {
-            rectangle = new Rectangle(parentObject.GetX() + rect.X, parentObject.GetY() + rect.Y, rect.Width, rect.Height);
+            rectangle = new Rectangle(parentObject.GetX() + rect.X, parentObject.GetY() + rect.Y, rect.Width * (int)parentObject.Engine.GlobalScale[0], rect.Height * (int)parentObject.Engine.GlobalScale[1]);
         }
 
         // GETTERS AND SETTERS
@@ -39,7 +39,7 @@ namespace GameEngine
         {
             //Console.WriteLine("RENDERING Box Component");
             SolidBrush brush = new SolidBrush(Colour);
-            engine.BufferedGFX.Graphics.FillRectangle(brush, parentObject.GetX() + rectangle.X, parentObject.GetY() + rectangle.Y, rectangle.Width, rectangle.Height);
+            engine.BufferedGFX.Graphics.FillRectangle(brush, parentObject.GetX() + rectangle.X, parentObject.GetY() + rectangle.Y, rectangle.Width * (int)parentObject.Engine.GlobalScale[0], rectangle.Height * (int)parentObject.Engine.GlobalScale[1]);
         }
 
         public override void Tick()
